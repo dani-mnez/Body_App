@@ -1,0 +1,287 @@
+#pageContent[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+#daylyEntries[b-qd3f656nqi] {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+#daylyEntries > *[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-radius: var(--border-medium);
+    padding: 10px;
+    background-color: var(--color-bkg-lightgrey);
+    min-height: 150px;
+    width: calc((100% - 10px*4)/5);
+}
+
+.dayTimeTitle[b-qd3f656nqi] {
+    margin: 0;
+    padding: 5px;
+    border-radius: var(--border-medium);
+    font-weight: 400;
+    text-align: center;
+    font-family: 'Rowdies', sans-serif;
+}
+
+/* Colores títulos ingestas diarias */
+#daylyEntries div:nth-child(1) .dayTimeTitle[b-qd3f656nqi] {
+    background-color: hsl(0, 93.33%, 70.59%);
+    color: hsl(0, 37%, 20%);
+}
+
+#daylyEntries div:nth-child(2) .dayTimeTitle[b-qd3f656nqi] {
+    background-color: hsl(340, 55.05%, 57.25%);
+    color: hsl(339, 41%, 18%);
+}
+
+#daylyEntries div:nth-child(3) .dayTimeTitle[b-qd3f656nqi] {
+    background-color: hsl(317.92, 34.22%, 44.12%);
+    color: hsl(319, 35%, 16%);
+}
+
+#daylyEntries div:nth-child(4) .dayTimeTitle[b-qd3f656nqi] {
+    background-color: hsl(275.29, 28.49%, 35.1%);
+    color: hsl(275, 57%, 66%);
+}
+
+#daylyEntries div:nth-child(5) .dayTimeTitle[b-qd3f656nqi] {
+    background-color: hsl(229.57, 35.38%, 25.49%);
+    color: hsl(230, 54%, 60%);
+}
+
+/* Macros de ingestas por tiempo de dia */
+.timeDayMacros[b-qd3f656nqi] {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+}
+
+.timeDayMacros p[b-qd3f656nqi] {
+    margin: 0;
+    width: min-content;
+}
+
+.numericalData[b-qd3f656nqi] {
+    font-variation-settings: 'wght' 700;
+}
+
+.macroTitle[b-qd3f656nqi] {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 400;
+    color: gray;
+}
+/* Fin de lo anterior */
+
+
+/* Tal */
+.timeDayDetailWrapper[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+/* Fin de lo anterior */
+
+.entriesWrapper[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.noDataCta[b-qd3f656nqi] {
+    text-align: center;
+}
+
+.entriesWrapper > p[b-qd3f656nqi] {
+    text-align: center;
+    color: grey;
+}
+
+.addMealBtn[b-qd3f656nqi] {
+    margin: 0 auto 10px auto;
+}
+
+.addMealBtn[b-qd3f656nqi],
+#controlDateWrapper > button[b-qd3f656nqi],
+#setToday[b-qd3f656nqi],
+[b-qd3f656nqi] .infoCtaBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    border: none;
+    font-variation-settings: 'wght' 650;
+    color: hsl(0, 0%, 30%);
+    border-radius: var(--border-medium);
+    cursor: pointer;
+    transition: background-color .2s ease-in-out, color .2s ease-in-out, border-radius .2s ease-in-out;
+    background-color: var(--color-bkg-slightlydarkgrey);
+}
+
+#setToday[b-qd3f656nqi] {
+    padding: 5px 50px;
+    margin: 0 auto;
+}
+
+.addMealBtn:hover[b-qd3f656nqi],
+#controlDateWrapper > button:hover[b-qd3f656nqi],
+#setToday:hover[b-qd3f656nqi] {
+    background-color: var(--color-btn-hover);
+    color: black;
+    border-radius: var(--border-large);
+}
+
+[b-qd3f656nqi] .infoCtaBtn:first-of-type:hover {
+    background-color: var(--btn-yellow-border);
+    color: var(--btn-yellow-bkg);
+    border-radius: var(--border-large);
+}
+
+[b-qd3f656nqi] .infoCtaBtn:last-of-type:hover {
+    background-color: var(--btn-red-border);
+    color: var(--btn-red-bkg);
+    border-radius: var(--border-large);
+}
+
+#controlDateWrapper[b-qd3f656nqi] {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 30px;
+}
+
+#controlDateWrapper > p[b-qd3f656nqi] {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    width: 200px;
+    text-align: center;
+    margin: none;
+}
+
+#datePickerWrapper[b-qd3f656nqi] {
+    width: 250px;
+}
+
+#currentDay[b-qd3f656nqi] {
+    text-align: center;
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 400;
+    margin: 5px 0 0 0;
+}
+
+#allDayResume p[b-qd3f656nqi] {
+    margin: 0;
+}
+
+#allDayResume[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--border-large);
+    background-color: var(--color-bkg-lightgrey);
+    min-height: 200px;
+}
+
+#allDayResume h3[b-qd3f656nqi] {
+    text-align: center;
+    padding: 5px;
+    border-radius: var(--border-medium);
+    background-color: var(--color-bkg-grey);
+    color: gray;
+}
+
+#allDayResume .dataWrapper[b-qd3f656nqi] {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#allDayResume span[b-qd3f656nqi] {
+    font-variation-settings: 'wght' 650;
+}
+
+#foodDetailData[b-qd3f656nqi],
+#dayFoodEntries[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.infoCtaRow[b-qd3f656nqi] {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.infoCtaRow p[b-qd3f656nqi] {
+    flex: 0 0 100%;
+    text-align: center;
+}
+
+.dataWrapper.noData[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.dataWrapper.noData p[b-qd3f656nqi] {
+    text-align: center;
+    color: grey;
+    padding: 0 50px;
+}
+
+.dataWrapper.noData button:hover[b-qd3f656nqi] {
+    background-color: var(--btn-yellow-border);
+    color: var(--btn-yellow-bkg);
+    border-radius: var(--border-large);
+}
+
+.dataWrapper.editMode[b-qd3f656nqi]  input {
+    background-color: var(--color-bkg-grey);
+}
+
+/* Listado de comidas */
+#allUserMeals[b-qd3f656nqi] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#mealsWrapper[b-qd3f656nqi] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Botón de agregar nueva comida */
+#addNewMealBtn button[b-qd3f656nqi] {
+    height: 100%;
+    background-color: var(--color-bkg-lightgrey);
+    border-radius: var(--border-large);
+    border: 1px dashed grey;
+    padding: 0 10px;
+    cursor: pointer;
+    transition: background-color .2s ease-in-out, color .2s ease-in-out, border-radius .2s ease-in-out;
+    font-variation-settings: 'wght' 650;
+    color: grey;
+}
+
+#addNewMealBtn button:hover[b-qd3f656nqi] {
+    background-color: var(--color-btn-hover);
+    color: black;
+    border-radius: 40px;
+    border: 1px solid grey;
+}

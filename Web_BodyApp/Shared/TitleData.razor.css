@@ -1,0 +1,14 @@
+﻿.dataTitle {
+    font-size: .75rem;
+    color: #808080;
+    text-transform: uppercase;
+    font-family: 'Rowdies';
+    font-weight: 300;
+    margin: 0;
+    display: inline-block;
+}
+
+.dataDiv {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,50 @@
+#addWeightDataForm[b-psor6dh6ng] {
+    display: flex;
+    gap: 10px;
+}
+
+#basicWidgets[b-psor6dh6ng] {
+    display: flex;
+    gap: 30px;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+#basicWidgets > *[b-psor6dh6ng],
+#basicWidgets[b-psor6dh6ng]  .noDataPlaceHolder {
+    width: 400px;
+    background-color: var(--color-bkg-lightgrey);
+    border-radius: var(--border-large);
+    padding: 20px;
+}
+
+.widgetTitle[b-psor6dh6ng] {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+#fatPercRepresentationRes[b-psor6dh6ng] {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#fatPercRepresentationRes img[b-psor6dh6ng] {
+    width: 100%;
+    border-radius: var(--border-large);
+}
+
+#fatPercRepresentationRes span[b-psor6dh6ng] {
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+#fatPercRepresentationRes p[b-psor6dh6ng] {
+    text-align: center;
+}
+
+#pageContent[b-psor6dh6ng] {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}

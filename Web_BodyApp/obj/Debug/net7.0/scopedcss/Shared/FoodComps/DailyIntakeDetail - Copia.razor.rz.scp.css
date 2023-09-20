@@ -1,0 +1,51 @@
+.foodDataInfoCard[b-fev87m1ruo],
+.mealDataInfoCard[b-fev87m1ruo] {
+    margin: 0 10px;
+    padding: 10px;
+    background-color: var(--color-bkg-grey);
+    border-radius: var(--border-medium);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.foodDataInfoCard p[b-fev87m1ruo],
+.mealDataInfoCard p[b-fev87m1ruo] {
+    margin: 0;
+}
+
+.intakeDetailBasicInfo[b-fev87m1ruo] {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.intakeMacrosWrapper[b-fev87m1ruo] {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.intakeMacrosWrapper.formInput[b-fev87m1ruo] {
+    width: 30%;
+}
+
+.intakeDetailName[b-fev87m1ruo] {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    color: gray;
+}
+
+.foodDataInfoCard p:not(.intakeDetailName) span[b-fev87m1ruo],
+.mealDataInfoCard p:not(.intakeDetail) span[b-fev87m1ruo] {
+    font-variation-settings: 'wght' 700;
+}
+
+.intakeDetailCtaBtns[b-fev87m1ruo] {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+    .intakeDetailCtaBtns button[b-fev87m1ruo] {
+        background-color: var(--color-bkg-slightlydarkgrey);
+    }

@@ -1,0 +1,10 @@
+﻿<div class="dataDiv">
+    <p class="dataTitle">@title</p>
+    <span class="dataValue">@(value)@unit</span>
+</div>
+
+@code {
+    [Parameter] public string title { get; set; }
+    [Parameter] public string value { get; set; }
+    [Parameter] public string? unit { get; set; }
+}

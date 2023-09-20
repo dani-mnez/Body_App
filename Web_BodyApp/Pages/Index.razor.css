@@ -1,0 +1,50 @@
+﻿#addWeightDataForm {
+    display: flex;
+    gap: 10px;
+}
+
+#basicWidgets {
+    display: flex;
+    gap: 30px;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+#basicWidgets > *,
+#basicWidgets ::deep .noDataPlaceHolder {
+    width: 400px;
+    background-color: var(--color-bkg-lightgrey);
+    border-radius: var(--border-large);
+    padding: 20px;
+}
+
+.widgetTitle {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+#fatPercRepresentationRes {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#fatPercRepresentationRes img {
+    width: 100%;
+    border-radius: var(--border-large);
+}
+
+#fatPercRepresentationRes span {
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+#fatPercRepresentationRes p {
+    text-align: center;
+}
+
+#pageContent {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}

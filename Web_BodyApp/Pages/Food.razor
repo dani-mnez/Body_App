@@ -1,0 +1,525 @@
+﻿@page "/food"
+@using System.Globalization;
+@using KellermanSoftware.CompareNetObjects;
+@using System.Linq.Expressions;
+@using Web_BodyApp.Data;
+@using Plotly.Blazor.LayoutLib;
+@using Plotly.Blazor.Traces.ScatterLib;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.AssistClasses.StatusClasses;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data.Models.PhysicData;
+@using Web_BodyApp.Data.ServiceClasses;
+@using Web_BodyApp.Shared.FoodComps
+@inject UserStateService UserState
+@inject ModalService ModalService
+@inject HttpClient Http
+@inject RequestService Request
+@inject ReloadService Reload
+
+<PageTitle>BODYAPP | Alimentación</PageTitle>
+
+<h1 class="pageTitle">Alimentación</h1>
+
+<div id="pageContent">
+    <div id="allUserMeals">
+        <h2 class="subTitle">Listado de comidas guardadas</h2>
+        <div id="mealsWrapper">
+            @if (UserState.Meals.Count > 0)
+            {
+                foreach (var (meal, index) in UserState.Meals.Select((value, i) => (value, i)))
+                {
+                    <FoodMealItem Meal="@meal" MealIdx="@index" onRequestRefresh="Refresh" />
+                }
+            }
+            else
+            {
+                <NoDataPlaceHolder Message="las comidas guardadas por el usuario" />
+            }
+            <div id="addNewMealBtn">
+                <button @onclick="() => OpenModal(3, null, null)">Añadir nueva comida guardada</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="calEvolGraph">
+        <h2 class="subTitle">Evolución de calorías</h2>
+        @if (UserState.HistoricalData.Count > 0)
+        {
+            <PlotlyChart @bind-Data="allCalsEvolData" @bind-Layout="allCalsEvolLayout" @bind-Config="allCalsEvolConfig" @ref="allCalsEvolChart"/>
+        } else
+        {
+            <NoDataPlaceHolder Message="la gráfica de la evolución de las calorías por macronutrientes"/>
+        }
+    </div>
+
+    <div id="calNeedConsEvolGrpah">
+        <h2 class="subTitle">Evolución diaria de calorías necesarias / consumidas</h2>
+        @if (UserState.HistoricalData.Count > 0)
+        {
+            <PlotlyChart @bind-Data="dailyObjectiveCalsData" @bind-Layout="allCalsEvolLayout" @bind-Config="allCalsEvolConfig" @ref="dailyObjectiveCalsChart"/>
+        }
+        else
+        {
+            <NoDataPlaceHolder Message="la gráfica de la evolución diaria de las calorías totales consumidas"/>
+        }
+    </div>
+
+    <div id="foodDetailData">
+        <h2 class="subTitle">Detalle de ingestas por día</h2>
+        <div id="controlDateWrapper">
+            <button id="beforeDay" @onclick="SubsDay">Día anterior</button>
+            <div id="datePickerWrapper">
+                <button id="setToday" @onclick="@(() => selectedDate = DateTime.Now)">Ir a hoy</button>
+                <p id="currentDay">@(
+                    (selectedDate.Date == DateTime.Now.Date)
+                    ? "Hoy"
+                    : selectedDate.Date.ToString("dd 'de' MMMM 'de' yyyy", culture)
+                )
+                </p>
+            </div>
+            <button id="afterDay" @onclick="AddDay">Día siguiente</button>
+        </div>
+        <div id="dayFoodEntries">
+            <div id="allDayResume">
+                <h3 class="subTitle">Resumen del día</h3>
+                <div class="dataWrapper @(editMode ? "editMode" : "") @(selectedDayNutritionalData == null ? "noData" : "")">
+                    @if (editMode)
+                    {
+                        <div class="formInputBlock">
+                            <label for="inputTotalDaylyCalories">Calorías totales (gr)*:</label>
+                            <InputNumber @bind-Value="@editTodayND!.TotalNutDataCalories" class="formInput" id="inputTotalDaylyCalories" />
+                        </div>
+                        <div class="formInputBlock">
+                            <label for="inputTotalDaylyProts">Proteínas totales (gr)*:</label>
+                            <InputNumber @bind-Value="@editTodayND.TotalNutDataMacros.Prots" class="formInput" id="inputTotalDaylyProts" />
+                        </div>
+                        <div class="formInputBlock">
+                            <label for="inputTotalDaylyCarbs">Carbohidratos totales (gr)*:</label>
+                            <InputNumber @bind-Value="@editTodayND.TotalNutDataMacros.Carbs" class="formInput" id="inputTotalDaylyCarbs" />
+                        </div>
+                        <div class="formInputBlock">
+                            <label for="inputTotalDaylyFats">Grasas totales (gr)*:</label>
+                            <InputNumber @bind-Value="@editTodayND.TotalNutDataMacros.Fats" class="formInput" id="inputTotalDaylyFats" />
+                        </div>
+                    }
+                    else
+                    {
+                        if (noNutData)
+                        {
+                            <p>No ha introducido datos alimentarios para este día. Puede hacerlo con el botón de abajo para definir datos para el día globalmente, o puede introducir ingestar en diferentes temporalidades dentro del día en las 5 casillas inferiores.</p>
+                            <button class="infoCtaBtn" @onclick="() => OpenModal(2, 0, selectedDate)">Agregar</button>
+                        } else
+                        {
+                            <p>Calorías totales: <span>@selectedDayNutritionalData!.TotalNutDataCalories</span>kcal</p>
+                            <p>Proteínas totales: <span>@selectedDayNutritionalData.TotalNutDataMacros.Prots</span>gr.</p>
+                            <p>Carbohidratos totales: <span>@selectedDayNutritionalData.TotalNutDataMacros.Carbs</span>gr.</p>
+                            <p>Grasas totales: <span>@selectedDayNutritionalData.TotalNutDataMacros.Fats</span>gr.</p>
+                        }
+                    }
+                </div>
+                <div class="infoCtaRow @(editMode ? "editMode" : "")">
+                    @if (editMode)
+                    {
+                        <button class="infoCtaBtn" @onclick="ApplyAllDayInput">Aceptar</button>
+                        <button class="infoCtaBtn" @onclick="CancelEditData">Cancelar</button>
+                    } else
+                    {
+                        if (isDailyNutData) {
+                            <p>Estos datos fueron introducidos como el total diario directamente, de modo que no se pueden agregar comidas a diferentes tiempos del día</p>
+                            <button class="infoCtaBtn" @onclick="EntryEditMode">Editar</button>
+                            <button class="infoCtaBtn" @onclick="DeleteAllDayIntakeData">Eliminar</button>
+                        }
+                        if (selectedDayNutritionalData?.DayTimeIntakes != null)
+                        {
+                            <p>Estos datos están calculados en base a las ingestas detalladas más abajo. Si quieres definir datos diarios globales para este día, antes debes eliminar todos los registros de abajo.</p>
+                        }
+                    }
+                </div>
+            </div>
+            <div id="daylyEntries">
+                @{int contador = 1;}
+                @foreach (var dayTime in foodEntries)
+                {
+                    int innerContador = contador;
+                    <div id="@dayTime["id"]">
+                        <p class="dayTimeTitle">@dayTime["name"]</p>
+                        <div class="entriesWrapper">
+                            @if (isDailyNutData)
+                            {
+                                <p>No puedes introducir ninguna entrada. La ingesta del día fue introducida a nivel general.</p>
+                            } else
+                            {
+                                if (selectedDayNutritionalData?.DayTimeIntakes?.ContainsKey(innerContador) ?? false)
+                                {
+                                    DayTimeIntakes dayTimeIntakes = selectedDayNutritionalData.DayTimeIntakes[innerContador];
+                                    
+                                    <div class="timeDayMacros">
+                                        <p><span class="macroTitle">Cal.:</span> <span class="numericalData">@dayTimeIntakes.TotalDayTimeIntakesCalories</span>kcal.</p>
+                                        <p><span class="macroTitle">Prot.:</span> <span class="numericalData">@dayTimeIntakes.TotalDayTimeIntakesMacros.Prots</span>gr.</p>
+                                        <p><span class="macroTitle">Carb.:</span> <span class="numericalData">@dayTimeIntakes.TotalDayTimeIntakesMacros.Carbs</span>gr.</p>
+                                        <p><span class="macroTitle">Grasa:</span> <span class="numericalData">@dayTimeIntakes.TotalDayTimeIntakesMacros.Fats</span>gr.</p>
+                                    </div>
+
+                                    <div class="timeDayDetailWrapper">
+                                        @if (dayTimeIntakes.Type == 0 || dayTimeIntakes.Type == 2)
+                                        {
+                                            foreach (FoodData fData in dayTimeIntakes.FoodIntake!.Where(x => x != null))
+                                            {
+                                                <DailyIntakeFoodDetail dayTime="@innerContador"
+                                                                       histData="@selectedDayHistoricalData"
+                                                                       nutData="@selectedDayNutritionalData" 
+                                                                       foodData="@fData"
+                                                                       onRequestRefresh="Refresh" />
+                                            }
+                                        }
+                                        @if (dayTimeIntakes.Type == 1 || dayTimeIntakes.Type == 2)
+                                        {
+                                            foreach (MealIntake mIntake in dayTimeIntakes.MealIntake!.Where(x => x != null))
+                                            {
+                                                Meal mData = UserState.Meals.First(m => m.Id == mIntake.MealId);
+                                                <DailyIntakeMealDetail dayTime="@innerContador" 
+                                                                       histData="@selectedDayHistoricalData" 
+                                                                       nutData="@selectedDayNutritionalData" 
+                                                                       mealData="@mData" 
+                                                                       mIntakeData="@mIntake" 
+                                                                       onRequestRefresh="Refresh"/>
+                                            }
+                                        }
+                                    </div>
+                                }
+                                <div class="noDataCta">
+                                    @if (selectedDayNutritionalData?.DayTimeIntakes?.ContainsKey(innerContador) ?? false)
+                                    {
+                                        <p>Introduce otra ingesta para esta franja temporal.</p>
+                                    } else
+                                    {
+                                        <p>Aún no has introducido ninguna entrada para este horario de ingesta. Puedes hacerlo pulsando el botón inferior.</p>
+                                    }
+                                    <button class="addMealBtn" @onclick="() => OpenModal(2, innerContador, selectedDate)">Añadir alimentos</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    contador++;
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    // Gestión de datos diarios
+    private bool editMode = false;
+
+
+    private void EntryEditMode()
+    {
+        editMode = true;
+        editTodayND = selectedDayNutritionalData!.GetCopy();
+    }
+
+    private async Task UpdateGraphs()
+    {
+        GenerateGraphsData();
+        await allCalsEvolChart.Update();
+        await dailyObjectiveCalsChart.Update();
+    }
+
+    private async Task DeleteAllDayIntakeData()
+    {
+        // Obtenemos el estado del HistoricalData
+        HistoricalDataStatus hDataStatus = Utils.GetHistoricalDataStatus(selectedDayHistoricalData!);
+
+        // Eliminamos los datos en local
+        if (hDataStatus.IsNutritionalData && !hDataStatus.IsPhysicalData)
+            UserState.HistoricalData.Remove(selectedDayHistoricalData!); // Si solo hay un NutritionalData, eliminamos el HistoricalData
+        else
+            UserState.HistoricalData.First(hd => hd.Id == selectedDayHistoricalData!.Id).NutritionalData = null; // Si existe el PhysicalData, eliminamos el NutritionalData del HistoricalData
+
+        // Eliminamos los datos en la BDD
+        await Request.DeleteAllDayNutritionalData(hDataStatus, selectedDayNutritionalData!.Id!, selectedDayHistoricalData!.Id, UserState.UserData.Id);
+
+
+        // Actualizamos los datos
+        await Refresh();
+    }
+
+    private void CancelEditData()
+    {
+        editMode = false;
+        editTodayND = null;
+    }
+
+    private async Task ApplyAllDayInput()
+    {
+        editMode = false;
+
+        // Comprobamos las diferencias entre el nutritionalData original y el editado para enviar únicamente los cambios a la BDD
+        ComparisonResult comparisonResult = Request.CompareObjects<NutritionalData>(selectedDayNutritionalData!, editTodayND!);
+
+        // Editamos en la BDD el nutritionalData
+        HttpResponseMessage responseMessage = await Request.ApplyChangesWithPatch($"NutritionalData/{editTodayND!.Id}", comparisonResult.Differences);
+
+        // Actualizamos los datos del día en local
+        UserState.HistoricalData.First(hd => hd.Id == selectedDayHistoricalData!.Id).NutritionalData = editTodayND;
+        selectedDayNutritionalData = editTodayND;
+
+        editTodayND = null;
+
+
+        // Actualizamos los datos
+        await Refresh();
+    }
+
+
+    private async void OpenModal(int inputType, int? mealTimeDate, DateTime? entryDateTime)
+    {
+        await ModalService.ShowAsync(inputType, mealTimeDate, entryDateTime);
+    }
+
+    private async Task Refresh()
+    {
+        await UpdateGraphs();
+        GetSelectedDayData();
+        isDailyNutData = selectedDayNutritionalData != null && selectedDayNutritionalData?.DayTimeIntakes == null;
+        StateHasChanged();
+    }
+
+
+    #region Gestión de fechas
+    private DateTime _selectedDate = DateTime.Now;
+    CultureInfo culture = new("es-ES");
+    DateTime selectedDate { 
+        get { return _selectedDate; }
+        set
+        {
+            _selectedDate = value;
+            GetSelectedDayData();
+            isDailyNutData = selectedDayNutritionalData != null && selectedDayNutritionalData?.DayTimeIntakes == null;
+        }
+    }
+
+
+    // Funciones para los botones de control de fecha
+    private void AddDay() { selectedDate = selectedDate.AddDays(1); }
+    private void SubsDay() { selectedDate = selectedDate.Subtract(new TimeSpan(1, 0, 0, 0)); }
+    #endregion
+
+
+    #region Gestión de datos de ingestas del día
+    // Generación de datos de detalle de ingestas del día
+    List<Dictionary<string, string>> foodEntries = new()
+    {
+        new Dictionary<string, string>
+        {
+            {"id", "breakfastEntries"},
+            {"name", "Desayuno"}
+        },
+        new Dictionary<string, string>
+        {
+            {"id", "morningEntries"},
+            {"name", "Media mañana"}
+        },
+        new Dictionary<string, string>
+        {
+            {"id", "lunchEntries"},
+            {"name", "Comida"}
+        },
+        new Dictionary<string, string>
+        {
+            {"id", "afternoonEntries"},
+            {"name", "Tarde"}
+        },
+        new Dictionary<string, string>
+        {
+            {"id", "dinnerEntries"},
+            {"name", "Cena"}
+        }
+    };
+
+
+    // Gestión y utilidades de datos de ingestas del día
+    private bool noNutData { get; set; }
+    private bool isDailyNutData { get; set; }
+
+    private HistoricalData? selectedDayHistoricalData = null;
+    private NutritionalData? editTodayND = null;
+    NutritionalData? selectedDayNutritionalData = null;
+
+    protected override void OnInitialized()
+    {
+        GetSelectedDayData();
+        isDailyNutData = selectedDayNutritionalData != null && selectedDayNutritionalData?.DayTimeIntakes == null;
+        if (UserState.HistoricalData.Count > 0) { GraphGeneration(); }
+
+        Reload.OnReloadAsync += Refresh;
+    }
+
+    public void Dispose()
+    {
+        Reload.OnReloadAsync -= Refresh;
+    }
+
+    private void GetSelectedDayData()
+    {
+        selectedDayHistoricalData = UserState.HistoricalData.FirstOrDefault(hd => hd.Date.Date == selectedDate.Date);
+        selectedDayNutritionalData = selectedDayHistoricalData?.NutritionalData;
+        noNutData = selectedDayNutritionalData == null;
+    }
+    #endregion
+
+
+    #region Gráficos
+    // GRÁFICO DE CALORÍAS
+    PlotlyChart allCalsEvolChart;
+    Config allCalsEvolConfig;
+    Layout allCalsEvolLayout;
+    IList<ITrace> allCalsEvolData;
+
+    // GRÁFICO DE CALORÍAS DIARIAS CONSUMIDAS VS OBJETIVO
+    PlotlyChart dailyObjectiveCalsChart;
+    IList<ITrace> dailyObjectiveCalsData;
+
+
+    private void GraphGeneration()
+    {
+        GenerateBaseGraphs();
+        GenerateGraphsData();
+    }
+    private void GenerateBaseGraphs()
+    {
+        // Generación del gráfico de calorías
+        allCalsEvolChart = new();
+        allCalsEvolConfig = new() { Responsive = true };
+        allCalsEvolLayout = new() {
+            YAxis = new List<YAxis> {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title { Text = "Calorías" },
+                    ShowGrid = false
+                }
+            },
+            XAxis = new List<XAxis> {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title { Text = "Fecha" },
+                    Type = Plotly.Blazor.LayoutLib.XAxisLib.TypeEnum.Date,
+                    AutoRange = Plotly.Blazor.LayoutLib.XAxisLib.AutoRangeEnum.True,
+                    TickFormat = "%d/%m/%Y",
+                    ShowGrid = false
+                }
+            }
+        };
+        allCalsEvolData = new List<ITrace>()
+        {
+            CreateScatter("TMB", "Tasa de metabolismo basal"),
+            CreateScatter("Manten", "Mantenimiento"),
+            CreateScatter("Loss", "Pérdida de grasa")
+        };
+
+        // Generación de el gráfico de calorías diarias consumidas vs objetivo
+        dailyObjectiveCalsChart = new();
+        dailyObjectiveCalsData = new List<ITrace>()
+        {
+            CreateScatter("Goal","Objetivo"),
+            new Bar {
+                UId = "Cons",
+                Name = "Consumido",
+                X = new List<object>(),
+                Y = new List<object>()
+            }
+        };
+        dailyObjectiveCalsData.OfType<Scatter>().First(x => x.UId == "Goal").Line = new Line { Dash = "dash" };
+    }
+    private void GenerateGraphsData() {
+        // Para TODAS las calorías calculadas
+        List<Scatter> scatterTraceAllCalsEvos = new()
+        {
+            allCalsEvolData.OfType<Scatter>().FirstOrDefault(x => x.UId == "TMB")!,
+            allCalsEvolData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Manten")!,
+            allCalsEvolData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Loss")!
+        };
+        foreach (var scatterTraceAllCalsEvo in scatterTraceAllCalsEvos)
+        {
+            ClearData(scatterTraceAllCalsEvo);
+        }
+
+        // Para las calorías OBJETIVO y CONSUMIDAS
+        Scatter objectiveCals = dailyObjectiveCalsData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Goal")!;
+        Bar consumedCals = dailyObjectiveCalsData.OfType<Bar>().FirstOrDefault(x => x.UId == "Cons")!;
+
+        ClearData(objectiveCals);
+        ClearData(consumedCals);
+
+        objectiveCals.Name = (UserState.UserData!.Goal == 0) ? "Objetivo (Mantenimiento)" : "Objetivo (Pérdida de grasa)";
+
+        // Iterar sobre HistoricalData y extraer datos para gráficos
+        PhysicalData? lastPhysicalData = null;
+
+        int allPhysicalDataCount = UserState.HistoricalData.Count(x => x.PhysicalData != null);
+        foreach (var hd in UserState.HistoricalData)
+        {
+            // Para datos de TODAS las calorías
+            foreach (var scatterTraceAllCalsEvo in scatterTraceAllCalsEvos!)
+            {
+                scatterTraceAllCalsEvo.X.Add(hd.Date);
+
+                if (hd.PhysicalData != null)
+                    switch (scatterTraceAllCalsEvo.UId)
+                    {
+                        case "TMB":    scatterTraceAllCalsEvo.Y.Add(hd.PhysicalData.Computed.Nutrients!.DiaryTMB);      break;
+                        case "Manten": scatterTraceAllCalsEvo.Y.Add(hd.PhysicalData.Computed.Nutrients!.MaintainKcals); break;
+                        case "Loss":   scatterTraceAllCalsEvo.Y.Add(hd.PhysicalData.Computed.Nutrients!.FatLossKcals);  break;
+                    }
+            }
+
+            // Para datos de calorías OBJETIVO y CONSUMIDAS
+            objectiveCals.X.Add(hd.Date);
+            consumedCals.X.Add(hd.Date);
+
+            if (hd.PhysicalData != null) lastPhysicalData = hd.PhysicalData;
+            
+            int goalCalsVal = (UserState.UserData!.Goal == 0) ? lastPhysicalData!.Computed!.Nutrients!.MaintainKcals : lastPhysicalData!.Computed!.Nutrients!.FatLossKcals;
+            if (objectiveCals.UId == "Goal") objectiveCals.Y.Add(goalCalsVal);
+            if (consumedCals.UId == "Goal") consumedCals.Y.Add(goalCalsVal);
+
+            int consumedCalsVal = (hd.NutritionalData != null) ? hd.NutritionalData.TotalNutDataCalories : 0;
+            if (objectiveCals.UId == "Cons") objectiveCals.Y.Add(consumedCalsVal);
+            if (consumedCals.UId == "Cons") consumedCals.Y.Add(consumedCalsVal);
+        }
+    }
+
+
+    private Scatter CreateScatter(string uid, string name)
+    {
+        return new Scatter
+            {
+                UId = uid,
+                Name = name,
+                Mode = ModeFlag.Lines | ModeFlag.Markers,
+                X = new List<object>(),
+                Y = new List<object>()
+            };
+    }
+    private void ClearData(Scatter scatter)
+    {
+        if (scatter != null)
+        {
+            scatter.Y.Clear();
+            scatter.X.Clear();
+        }
+    }
+    private void ClearData(Bar bar)
+    {
+        if (bar != null)
+        {
+            bar.Y.Clear();
+            bar.X.Clear();
+        }
+    }
+    #endregion
+}

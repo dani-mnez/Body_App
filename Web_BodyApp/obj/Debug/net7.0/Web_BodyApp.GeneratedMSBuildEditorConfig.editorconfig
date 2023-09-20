@@ -1,0 +1,105 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Web_BodyApp
+build_property.RootNamespace = Web_BodyApp
+build_property.ProjectDir = c:\Users\dani_\Desktop\Body_App\Web_BodyApp\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = c:\Users\dani_\Desktop\Body_App\Web_BodyApp
+build_property._RazorSourceGeneratorDebug = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/FatSecretSearchWidget.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZhdFNlY3JldFNlYXJjaFdpZGdldC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/FormInputBlock.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZvcm1JbnB1dEJsb2NrLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/Food.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRm9vZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-qd3f656nqi
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/Historical.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSGlzdG9yaWNhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-4uteglf7d0
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-psor6dh6ng
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-e0xvin8cv2
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/EditableData.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVkaXRhYmxlRGF0YS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-fctpaz2a69
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/FoodComps/DailyIntakeFoodDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZvb2RDb21wc1xEYWlseUludGFrZUZvb2REZXRhaWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-uw1uxb9kj8
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/FoodComps/DailyIntakeMealDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZvb2RDb21wc1xEYWlseUludGFrZU1lYWxEZXRhaWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-szgdy27zal
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/FoodComps/FoodMealItem.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZvb2RDb21wc1xGb29kTWVhbEl0ZW0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-2x18exkic6
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/HistoricalComps/PhysicalDataListItem.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEhpc3RvcmljYWxDb21wc1xQaHlzaWNhbERhdGFMaXN0SXRlbS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-osf03im3si
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-kmkvfw2rf0
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/Modal.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-pj9gacceub
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/ModalComps/AddedIntakeCard.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1vZGFsQ29tcHNcQWRkZWRJbnRha2VDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-bz79n0rx6r
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-1bas4q87wh
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/NeededDataFor.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5lZWRlZERhdGFGb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-z47y4njggu
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/NoDataPlaceHolder.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5vRGF0YVBsYWNlSG9sZGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-lcbn34b4ul
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Shared/TitleData.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFRpdGxlRGF0YS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-a8eqb6l22p
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/dani_/Desktop/Body_App/Web_BodyApp/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

@@ -1,0 +1,405 @@
+﻿@page "/profile"
+@using KellermanSoftware.CompareNetObjects;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models;
+@using System.Collections.ObjectModel;
+@using System.Globalization;
+@using System.Text.Json;
+@using System.Text;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject HttpClient Http
+@inject UserStateService UserState
+@inject RequestService Request
+@inject ReloadService Reload
+
+<PageTitle>BODYAPP | Perfil</PageTitle>
+
+<h1 class="pageTitle">Perfil</h1>
+<div id="pageContent">
+    <div id="infoWrapper">
+        <div id="contactInfo">
+            <h2 class="subTitle">Información de contacto</h2>
+            <div class="editableDataWrapper">
+                <EditableData Id="name" 
+                              Text="Nombre:" 
+                              Key="Name" 
+                              Value="@userToEdit.Name" 
+                              ImagePath="./icons/name.svg" 
+                              onRequestRefresh="Refresh" >
+                    <InputText @bind-Value="@userToEdit.Name">@userToEdit.Name</InputText>
+                </EditableData>
+            </div>
+            <div class="editableDataWrapper">
+                <EditableData Id="mail" 
+                              Text="Correo:" 
+                              Key="Mail" 
+                              Value="@userToEdit.Mail" 
+                              ImagePath="./icons/mail.svg" 
+                              onRequestRefresh="Refresh">
+                    <InputText @bind-Value="@userToEdit.Mail">@userToEdit.Mail</InputText>
+                </EditableData>
+            </div>
+
+            <div class="editableDataWrapper">
+                <EditableData Id="password" 
+                              Text="Contraseña:" 
+                              ViewValue="*****" 
+                              Value="@userToEdit.Password" 
+                              Key="Password" 
+                              ImagePath="./icons/pwd.svg"
+                              onRequestRefresh="Refresh">
+                    <InputText @bind-Value="@userToEdit!.Password">@userToEdit.Password</InputText>
+                </EditableData>
+            </div>
+        </div>
+        <div id="bodyInfo">
+            <h2 class="subTitle">Información física</h2>
+            <div class="editableDataWrapper">
+                @if(lastWeight != null) {
+                    <EditableData Id="actualWeigth" 
+                                  IsButton="false" 
+                                  Text="Tu peso actual es:" 
+                                  Key="Height" 
+                                  Value="@lastWeight.ToString()" 
+                                  ImagePath="./icons/weight.svg" 
+                                  Units="kg"
+                                  onRequestRefresh="Refresh" />
+                } else
+                {
+                    <NoDataPlaceHolder Message="tu peso actual"/>
+                }
+                <NeededDataFor NeededData="@weightNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                <EditableData Id="height" 
+                              Text="Altura:" 
+                              Key="Height" 
+                              Value="@userToEdit!.Height.ToString()" 
+                              ImagePath="./icons/height.svg" 
+                              Units="cm" 
+                              onRequestRefresh="Refresh">
+                    <InputNumber @bind-Value="@userToEdit.Height">@userToEdit.Height</InputNumber>
+                </EditableData>
+                <NeededDataFor NeededData="@heightNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                <EditableData Id="birthDate" 
+                              Text="Fecha nacimiento:" 
+                              Key="BirthDate" 
+                              Value="@userToEdit.BirthDate.ToString("dd/MM/yyyy")" 
+                              ImagePath="./icons/age.svg"
+                              onRequestRefresh="Refresh" >
+                    <InputDate @bind-Value="@userToEdit.BirthDate">@userToEdit.BirthDate</InputDate>
+                </EditableData>
+                <NeededDataFor NeededData="@ageNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                <EditableData Id="sex" 
+                              Text="Sexo:" 
+                              Key="Sex" 
+                              Value="@userToEdit.Sex.ToString()" 
+                              ImagePath="./icons/sex.svg"
+                              onRequestRefresh="Refresh" >
+                    <InputSelect @bind-Value="@userToEdit.Sex">
+                        <option value="0">Mujer</option>
+                        <option value="1">Hombre</option>
+                    </InputSelect>
+                </EditableData>
+                <NeededDataFor NeededData="@sexNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                @if (userToEdit.ActivityLevel != null)
+                {
+                    <EditableData Id="activityLevel" 
+                                  Text="Nivel de actividad:" 
+                                  Key="ActivityLevel" 
+                                  Value="@userToEdit.ActivityLevel.ToString()"
+                                  ImagePath="./icons/actLevel.svg" 
+                                  onRequestRefresh="Refresh" >
+                        <InputSelect @bind-Value="@userToEdit.ActivityLevel">
+                            <option value="0">Poca (1-3 veces/sem.)</option>
+                            <option value="1">Moderada (3-5 veces/sem.)</option>
+                            <option value="2">Intensa (>5 veces/sem.)</option>
+                        </InputSelect>
+                    </EditableData>
+                } else
+                {
+                    <div class="addNewProfileData">
+                        @if (!showAddActivityLevelInput)
+                        {
+                            <div class="addNewInfoBtns">
+                                <button id="addActivityLevelData" @onclick="ToggleShowAddActivityLevelInput">Añadir nivel de actividad</button>
+                            </div>
+                        } else
+                        {
+                            <InputSelect @bind-Value="@activityLevelToAdd">
+                                <option value="0">Poca (1-3 veces/sem.)</option>
+                                <option value="1">Moderada (3-5 veces/sem.)</option>
+                                <option value="2">Intensa (>5 veces/sem.)</option>
+                            </InputSelect>
+                            <div class="addNewInfoBtns">
+                                <button class="acceptBtn" @onclick="@(async() => await AddNewData("activityLevel", activityLevelToAdd))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z" /></svg>
+                                </button>
+                                <button class="cancelBtn" @onclick="ToggleShowAddActivityLevelInput">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                <NeededDataFor NeededData="@activityLevelNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                @if (userToEdit.Goal != null)
+                {
+                    <EditableData Id="goal" 
+                                  Text="Objetivo:" 
+                                  Key="Goal" 
+                                  Value="@userToEdit.Goal.ToString()"
+                                  ImagePath="./icons/goal.svg"
+                                  onRequestRefresh="Refresh" >
+                        <InputSelect @bind-Value="@userToEdit.Goal">
+                            <option value="0">Mantenimiento</option>
+                            <option value="1">Pérdida de grasa</option>
+                        </InputSelect>
+                    </EditableData>
+                } else
+                {
+                    <div class="addNewProfileData">
+                        @if (!showAddGoalInput)
+                        {
+                            <div class="addNewInfoBtns">
+                                <button id="addGoalData" @onclick="ToggleShowAddGoalInput">Añadir objetivo</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <InputSelect @bind-Value="@goalToAdd">
+                                <option value="0">Mantenimiento</option>
+                                <option value="1">Pérdida de grasa</option>
+                            </InputSelect>
+                            <div class="addNewInfoBtns">
+                                <button @onclick="@(async() => await AddNewData("goal", goalToAdd))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z" /></svg>
+                                </button>
+                                <button @onclick="ToggleShowAddFatLooseRateInput">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                <NeededDataFor NeededData="@goalNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                @if (userToEdit.FatLooseRate != null)
+                {
+                    <EditableData Id="fatLooseRate" 
+                                  Text="Ritmo de quema de grasa:" 
+                                  Key="FatLooseRate" 
+                                  Value="@userToEdit.FatLooseRate.ToString()"
+                                  ImagePath="./icons/fatLooseRate.svg" 
+                                  onRequestRefresh="Refresh" >
+                        <InputSelect @bind-Value="@userToEdit.FatLooseRate">
+                            <option value="0">Lento (10-15%)</option>
+                            <option value="1">Medio (15-25%)</option>
+                            <option value="2">Rápido (>25%)</option>
+                        </InputSelect>
+                    </EditableData>
+                } else
+                {
+                    <div class="addNewProfileData">
+                        @if (!showAddFatLooseRateInput)
+                        {
+                            <div class="addNewInfoBtns">
+                                <button id="addFatLooseData" @onclick="ToggleShowAddFatLooseRateInput">Añadir ritmo de pérdida de grasa</button>
+                            </div>
+                        } else
+                        {
+                            <InputSelect @bind-Value="@fatLooseRateToAdd">
+                                <option value="0">Lento (10-15%)</option>
+                                <option value="1">Medio (15-25%)</option>
+                                <option value="2">Rápido (>25%)</option>
+                            </InputSelect>
+                            <div class="addNewInfoBtns">
+                                <button @onclick="@(async() => await AddNewData("fatLooseRate", fatLooseRateToAdd))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z" /></svg>
+                                </button>
+                                <button @onclick="ToggleShowAddFatLooseRateInput">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                <NeededDataFor NeededData="@fatLooseRateNeedFor" />
+            </div>
+
+            <div class="editableDataWrapper">
+                @if (userToEdit.BodyType != null)
+                {
+                    <div id="bodyTypeWrapper">
+                        <EditableData Id="bodyType" 
+                                      Text="Tipo de cuerpo:" 
+                                      Key="BodyType" 
+                                      Value="@userToEdit.BodyType.ToString()"
+                                      ImagePath="./icons/bodyType.svg" 
+                                      onRequestRefresh="Refresh" >
+                            <InputSelect @bind-Value="@userToEdit.BodyType">
+                                <option value="0">Ectomorfo</option>
+                                <option value="1">Mesomorfo</option>
+                                <option value="2">Endomorfo</option>
+                            </InputSelect>
+                        </EditableData>
+
+                        @if (bodyTypeImgSrc != null)
+                        {
+                            <img src="@bodyTypeImgSrc" />
+                        } else
+                        {
+                            <p>?</p>
+                        }
+                    </div>
+                } else {
+                    <div class="addNewProfileData">
+                        @if (!showAddBodyTypeInput)
+                        {
+                            <div class="addNewInfoBtns">
+                                <button id="addBodyTypeData" @onclick="ToggleShowAddBodyTypeInput">Añadir tipo de cuerpo</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <InputSelect @bind-Value="@bodyTypeToAdd">
+                                <option value="0">Ectomorfo</option>
+                                <option value="1">Mesomorfo</option>
+                                <option value="2">Endomorfo</option>
+                            </InputSelect>
+                            <div class="addNewInfoBtns">
+                                <button @onclick="@(async() => await AddNewData("bodyType", bodyTypeToAdd))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z" /></svg>
+                                </button>
+                                <button @onclick="ToggleShowAddBodyTypeInput">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                <NeededDataFor NeededData="@bodyTypeNeedFor" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    double? lastWeight;
+    string? bodyTypeImgSrc;
+    private UserDTO userToEdit { get; set; }
+
+    private int? activityLevelToAdd = null;
+    bool showAddActivityLevelInput = false;
+    private void ToggleShowAddActivityLevelInput() { showAddActivityLevelInput = !showAddActivityLevelInput; }
+
+    private int? goalToAdd = null;
+    bool showAddGoalInput = false;
+    private void ToggleShowAddGoalInput() { showAddGoalInput = !showAddGoalInput; }
+
+    private int? fatLooseRateToAdd = null;
+    bool showAddFatLooseRateInput = false;
+    private void ToggleShowAddFatLooseRateInput() { showAddFatLooseRateInput = !showAddFatLooseRateInput; }
+
+    private int? bodyTypeToAdd = null;
+    bool showAddBodyTypeInput = false;
+    private void ToggleShowAddBodyTypeInput() { showAddBodyTypeInput = !showAddBodyTypeInput; }
+
+    List<string> weightNeedFor = new() { "Cálculo del IMC", "Cálculo de la composición corporal", "Cálculo de las calorías diarias recomendadas" };
+    List<string> heightNeedFor = new() { "Cálculo del IMC", "Cálculo de la composición corporal" };
+    List<string> sexNeedFor = new() { "Cálculo de la composición corporal", "Cálculo de las calorías diarias recomendadas" };
+    List<string> ageNeedFor = new() { "Cálculo de las calorías diarias de la TMB" };
+    List<string> activityLevelNeedFor = new() { "Cálculo de las calorías diarias recomendadas de mantenimiento" };
+    List<string> goalNeedFor = new() { "Adecuación plan de nutrición" };
+    List<string> fatLooseRateNeedFor = new() { "Cálculo de las calorías diarias recomendadas de pérdida de grasa" };
+    List<string> bodyTypeNeedFor = new() { "Recomendaciones de entrenamiento y alimentación" };
+
+    protected override void OnInitialized()
+    {
+        ObservableCollection<HistoricalData> historicalData = UserState.HistoricalData;
+
+        lastWeight = (historicalData.Count > 0)
+            ? historicalData!.LastOrDefault(hd => hd?.PhysicalData != null)?.PhysicalData?.Weight        
+            : null;
+
+        bodyTypeImgSrc = GetBodyTypeSrc();
+        userToEdit = UserState.UserData.GetCopy();
+
+        Reload.OnReload += Refresh;
+    }
+
+    public void Dispose()
+    {
+        Reload.OnReload -= Refresh;
+    }
+
+    private string? GetBodyTypeSrc()
+    {
+        int? bodyType = UserState.UserData!.BodyType;
+
+        if (bodyType != null)
+        {
+            string baseUrl = "./imgs/bodyTypes/";
+            string extension = ".webp";
+
+            string bodyTypeString = "";
+            if (bodyType == 0)
+            {
+                bodyTypeString = "ecto";
+
+            } else if (bodyType == 1)
+            {
+                bodyTypeString = "meso";
+
+            } else if (bodyType == 2)
+            {
+                bodyTypeString = "endo";
+
+            }
+            string sexBase = (UserState.UserData!.Sex == 1) ? "M" : "F";
+
+            return baseUrl + bodyTypeString + sexBase + extension;
+        }
+        return null;
+    }
+
+    private async Task AddNewData(string formData, int? dataToAdd)
+    {
+        switch (formData)
+        {
+            case "activityLevel": userToEdit.ActivityLevel = dataToAdd; break;
+            case "goal":          userToEdit.Goal = dataToAdd;          break;
+            case "fatLooseRate":  userToEdit.FatLooseRate = dataToAdd;  break;
+            case "bodyType":      userToEdit.BodyType = dataToAdd;      break;
+        }
+
+        ComparisonResult comparisonResult = Request.CompareObjects<UserDTO>(UserState.UserData, userToEdit);
+
+        HttpResponseMessage respuestaPatch = await Request.ApplyChangesWithPatch($"User/{userToEdit.Id}", comparisonResult.Differences);
+    }
+
+    private void Refresh()
+    {
+        bodyTypeImgSrc = GetBodyTypeSrc();
+        userToEdit = UserState.UserData.GetCopy();
+
+        StateHasChanged();
+    }
+}

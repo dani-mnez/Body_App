@@ -1,0 +1,463 @@
+﻿@using KellermanSoftware.CompareNetObjects;
+@using Microsoft.AspNetCore.JsonPatch;
+@using Newtonsoft.Json;
+@using System.Text;
+@using System.Collections.ObjectModel;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.AssistClasses.StatusClasses;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject HttpClient Http
+@inject UserStateService UserState
+@inject RequestService Request
+@inject ReloadService Reload
+
+<div class="mealCard">
+    <h4 class="mealName">@meal.Name</h4>
+
+    <div class="mealData">
+        @if(!isMealEditMode)
+        {
+            <div class="firstMealRowData">
+                <TitleData title="Calorías" value="@meal.TotalCalories.ToString()" unit="kcal." />
+                <TitleData title="Peso" value="@meal.TotalWeight.ToString()" unit="gr." />
+            </div>
+            <TitleData title="Proteínas" value="@meal.TotalMealMacros.Prots.ToString()" unit="gr." />
+            <TitleData title="Carbohidratos" value="@meal.TotalMealMacros.Carbs.ToString()" unit="gr." />
+            <TitleData title="Grasas" value="@meal.TotalMealMacros.Fats.ToString()" unit="gr." />
+        } else
+        {
+            <div class="firstMealRowData">
+                <div class="formInputBlock">
+                    <label for="inputCalsMeal">Calorías</label>
+                    <InputNumber @bind-Value="@mealToEdit!.TotalCalories" class="formInput" id="inputCalsMeal" />
+                </div>
+                <div class="formInputBlock">
+                    <label for="inputWeightMeal">Peso</label>
+                    <InputNumber @bind-Value="@mealToEdit.TotalWeight" class="formInput" id="inputWeightMeal" />
+                </div>
+            </div>
+            <div class="formInputBlock">
+                <label for="inputProtsMeal">Proteínas</label>
+                <InputNumber @bind-Value="@mealToEdit.TotalMealMacros.Prots" class="formInput" id="inputProtsMeal" />
+            </div>
+            <div class="formInputBlock">
+                <label for="inputCarbsMeal">Carbohidratos</label>
+                <InputNumber @bind-Value="@mealToEdit.TotalMealMacros.Carbs" class="formInput" id="inputCarbsMeal" />
+            </div>
+            <div class="formInputBlock">
+                <label for="inputFatsMeal">Grasas</label>
+                <InputNumber @bind-Value="@mealToEdit.TotalMealMacros.Fats" class="formInput" id="inputFatsMeal" />
+            </div>
+        }
+    </div>
+    <div class="mealActions @(isMealEditMode ? "editMode" : "")">
+        @if (!isMealEditMode)
+        {
+            <button class="infoCtaBtn" @onclick="() => EntryEditModeMeal()">Editar</button>
+            <button class="infoCtaBtn" @onclick="() => DeleteMeal()">Eliminar</button>
+        } else
+        {
+            <button class="infoCtaBtn" @onclick="ApplyEditedMeal">Aceptar</button>
+            <button class="infoCtaBtn" @onclick="CancelEditionMeal">Cancelar</button>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public required Meal meal { get; set; }
+    [Parameter] public int mealIdx { get; set; }
+
+    [Parameter] public EventCallback onRequestRefresh { get; set; }
+
+
+    // Gestion de MEALS
+    private bool isMealEditMode { get; set; } = false;
+    private Meal? mealToEdit = null;
+
+    private void EntryEditModeMeal()
+    {
+        isMealEditMode = true;
+        mealToEdit = meal.Copy();
+    }
+
+    #region Functions
+    #region AuxDeleteClasses
+    private class HistNutDeleteAuxClass
+    {
+        public string HistDataId { get; set; }
+        public int HistDataIdx { get; set; }
+        public string NutDataId { get; set; }
+    }
+
+    private class NutDeleteAuxClass
+    {
+        public string HistDataId { get; set; }
+        public string NutDataId { get; set; }
+    }
+    #endregion
+
+    #region AuxDeleteFunctions
+    private (List<NutritionalData>, List<HistNutDeleteAuxClass>, List<NutDeleteAuxClass>) ProcessTempLocalObjectsAndGetData(List<MealItemData> coincidences, string mealId)
+    {
+        List<HistoricalData> historicalDataList = UserState.HistoricalData.ToList();
+
+        List<NutritionalData> modifiedNutDataList = new();
+        List<HistNutDeleteAuxClass> histIdAndNutIdOfTotalDelete = new();
+        List<NutDeleteAuxClass> nutIdOfTotalDelete = new();
+
+        foreach (MealItemData mealItem in coincidences)
+        {
+            HistoricalData tempHData = historicalDataList.First(hd => hd.Id == mealItem.HistoricalDataId).GetCopy();
+            NutritionalData tempNutData = tempHData.NutritionalData!.Copy();
+            HistoricalDataStatus histDataStatus = Utils.GetHistoricalDataStatus(tempHData);
+            int dayTimeIntakes = tempNutData.DayTimeIntakes!.Count;
+            bool onlyExistsNutDataInHistData = histDataStatus.IsNutritionalData && !histDataStatus.IsPhysicalData;
+            bool updateNutDataTotals = false;
+
+
+            List<int> keys = mealItem.DayTimeIntakesWithMeal.Keys.ToList();
+            for (int idx = 0; idx < keys.Count; idx++)
+            {
+                int dayTime = keys[idx];
+                DayTimeIntakes intakes = mealItem.DayTimeIntakesWithMeal[dayTime];
+                DeleteStructureData? delStructData = Utils.ConditionalDeleteInfo(dayTime, true, tempNutData, mealId);
+
+
+                if (delStructData != null)
+                {
+                    // Eliminaciones
+                    if (delStructData.DeleteDayTimePair) { tempNutData.DayTimeIntakes!.Remove(dayTime); }
+                    if (delStructData.DeleteMealIntakeList) { tempNutData.DayTimeIntakes![dayTime].MealIntake = null; }
+                    if (delStructData.DeleteMealIntakeItem) { tempNutData.DayTimeIntakes![dayTime].MealIntake!.RemoveAt((int)delStructData.IntakeIndexToDelete!); }
+
+                    // Actualizaciones
+                    if (delStructData.UpdateDayTimeIntakeType)
+                    {
+                        tempNutData!.DayTimeIntakes![dayTime].Type = Utils.CreateDayTimeIntakeType(
+                            tempNutData!.DayTimeIntakes![dayTime].FoodIntake, tempNutData!.DayTimeIntakes![dayTime].MealIntake);
+                    }
+                    if (delStructData.UpdateDayTimeIntakeCalMacros)
+                    {
+                        (int dayTimeIntakeCals, FoodMacros dayTimeIntakeMacros) = Calculus.CalculateDayTimeIntakesCalsMacros(tempNutData!.DayTimeIntakes![dayTime], UserState.Meals.ToList());
+                        tempNutData.DayTimeIntakes![dayTime].TotalDayTimeIntakesCalories = dayTimeIntakeCals;
+                        tempNutData.DayTimeIntakes![dayTime].TotalDayTimeIntakesMacros = dayTimeIntakeMacros;
+                    }
+
+                    // Se actualiza el total de NutData?
+                    if ((delStructData.DeleteDayTimePair || delStructData.DeleteMealIntakeList || delStructData.DeleteMealIntakeItem
+                        || delStructData.UpdateDayTimeIntakeType || delStructData.UpdateDayTimeIntakeCalMacros
+                    ) && !updateNutDataTotals) { updateNutDataTotals = true; }
+                }
+            }
+
+            if (tempNutData.DayTimeIntakes.Count == 0)
+            {
+                if (onlyExistsNutDataInHistData)
+                {
+                    histIdAndNutIdOfTotalDelete.Add(
+                    new()
+                        {
+                            HistDataId = tempHData.Id,
+                            HistDataIdx = UserState.UnorderedHistoricalDataIds.FindIndex(x => x == tempHData.Id),
+                            NutDataId = tempNutData.Id!
+                        }
+                    );
+                } else
+                {
+                    nutIdOfTotalDelete.Add(new() { HistDataId = tempHData.Id, NutDataId = tempNutData.Id! });
+                }
+            }
+            else
+            {
+                if (updateNutDataTotals)
+                {
+                    (int nutDataCals, FoodMacros nutDataMacros) = Calculus.CalculateNutDataCalsMacros(tempNutData!, UserState.Meals.ToList());
+                    tempNutData.TotalNutDataCalories = nutDataCals;
+                    tempNutData.TotalNutDataMacros = nutDataMacros;
+                }
+                modifiedNutDataList.Add(tempNutData);
+            }
+        }
+
+        return (modifiedNutDataList, histIdAndNutIdOfTotalDelete, nutIdOfTotalDelete);
+    }
+    #endregion
+
+    private async void DeleteMeal()
+    {
+        mealToEdit = meal.Copy();
+
+
+        // Se encuentran los elementos dependientes del meal
+        List<MealItemData> coincidences = FindElementsDependantOnMeal(mealToEdit!);
+
+        if (coincidences.Count > 0)
+        {
+            // Se modifica el objeto TEMPORAL LOCAL y se obtienen datos
+            (List<NutritionalData> modifiedNutDataList,
+            List<HistNutDeleteAuxClass> histIdAndNutIdOfTotalDelete,
+            List<NutDeleteAuxClass> nutIdOfTotalDelete) = ProcessTempLocalObjectsAndGetData(coincidences, meal.Id!);
+
+            /// Para BDD
+            // Eliminaciones completas en la BDD
+            if (histIdAndNutIdOfTotalDelete.Count() > 0 || nutIdOfTotalDelete.Count() > 0)
+            {
+                if (histIdAndNutIdOfTotalDelete.Count() > 0)
+                {
+                    if (histIdAndNutIdOfTotalDelete.Count() == 1)
+                    {
+                        HistNutDeleteAuxClass data = histIdAndNutIdOfTotalDelete.First();
+                        // Eliminamos el HistoricalData
+                        HttpResponseMessage responseDeleteHistoricalData = await Request.MakeSingleDeletePetition($"HistoricalData/{data.HistDataId}");
+
+                        // Eliminamos su referencia en User
+                        List<PatchStringCreationData> patchOperations = new() { new() { op = "remove", path = $"/HistoricalData/{data.HistDataIdx}" } };
+                        StringContent patchData = new(
+                            JsonConvert.SerializeObject(patchOperations, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                            Encoding.UTF8, "application/json");
+                        HttpResponseMessage responseDeleteHistoricalDataReferenceInUser = await Request.MakePatchPetition($"User/{UserState.UserData.Id}", patchData);
+
+                        // Eliminamos el NutritionalData (no tiene referencia, historicalData eliminado)
+                        HttpResponseMessage responseDeleteNutritionalData = await Request.MakeSingleDeletePetition($"NutritionalData/{data.NutDataId}");
+                    }
+                    else
+                    {
+                        // Eliminamos las referencias en User de HistoricalData
+                        List<int> histDataObjectIdxs = histIdAndNutIdOfTotalDelete.Select(x => x.HistDataIdx).ToList();
+                        List<PatchStringCreationData> patchOperations = new();
+                        foreach (int idx in histDataObjectIdxs.OrderByDescending(x => x).ToList()) patchOperations.Add(new PatchStringCreationData() { op = "remove", path = $"/HistoricalData/{idx}" });
+                        StringContent patchData = new StringContent(
+                            JsonConvert.SerializeObject(patchOperations, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                            Encoding.UTF8, "application/json");
+
+                        HttpResponseMessage responseDeleteHistoricalDataReferencesInUser = await Request.MakePatchPetition($"User/{UserState.UserData.Id}", patchData);
+
+
+                        // Eliminamos los HistoricalData de la BDD
+                        List<string> histDataObjectIdsToDelete = histIdAndNutIdOfTotalDelete.Select(x => x.HistDataId).ToList();
+                        HttpResponseMessage responseDeleteMultipleHistoricalData = await Request.MakeMultipleDeletePetition("HistoricalData/manyDeletes", histDataObjectIdsToDelete);
+
+
+                        // Eliminamos los NutritionalData de la BDD
+                        List<string> nutDataObjectsIdsToDelete = histIdAndNutIdOfTotalDelete.Select(x => x.NutDataId).ToList();
+                        HttpResponseMessage responseDeleteMultipleNutritionalData = await Request.MakeMultipleDeletePetition("NutritionalData/manyDeletes", nutDataObjectsIdsToDelete);
+                    }
+                }
+
+
+                if (nutIdOfTotalDelete.Count() > 0)
+                {
+                    if (nutIdOfTotalDelete.Count() == 1)
+                    {
+                        // Eliminamos la referencia en HistoricalData
+                        List<PatchStringCreationData> patchOperations = new() { new() { op = "remove", path = "/NutritionalData" } };
+                        StringContent patchData = new(
+                            JsonConvert.SerializeObject(patchOperations, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                            Encoding.UTF8, "application/json");
+                        HttpResponseMessage responseDeleteNutritionalDataReferenceInHistoricalData = await Request.MakePatchPetition($"HistoricalData/{nutIdOfTotalDelete[0].HistDataId}", patchData);
+
+                        // Eliminamos el objeto NutritionalData
+                        HttpResponseMessage responseDeleteNutritionalData = await Request.MakeSingleDeletePetition($"NutritionalData/{nutIdOfTotalDelete[0].NutDataId}");
+                    }
+                    else
+                    {
+                        // Eliminamos las referencias de los NutritionalData en los HistoricalData
+                        Dictionary<string, List<PatchStringCreationData>> patchStringCreationData = new();
+                        foreach (NutDeleteAuxClass ids in nutIdOfTotalDelete)
+                        {
+                            patchStringCreationData.Add(
+                                ids.HistDataId, 
+                                new List<PatchStringCreationData>() { 
+                                    new() { op = "remove", path = "/NutritionalData" } 
+                                }
+                            );
+                        }
+                        StringContent patchData = new StringContent(
+                            JsonConvert.SerializeObject(patchStringCreationData, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                            Encoding.UTF8, "application/json");
+
+                        HttpResponseMessage responsePatchMultipleHistoricalData = await Request.MakePatchPetition($"HistoricalData/multiplePatch", patchData);
+
+                        // Eliminamos los objetos HistoricalData
+                        List<string> nutDataIdsToDelete = nutIdOfTotalDelete.Select(x => x.NutDataId).ToList();
+                        HttpResponseMessage responseDeleteMultipleHistoricalData = await Request.MakeMultipleDeletePetition("NutritionalData/manyDeletes", nutDataIdsToDelete);
+                    }
+                }
+            }
+
+            if (modifiedNutDataList.Count > 0)
+            {
+                // Si son modificaciones
+                // Generamos diccionario de nutDataId, JsonPatch en formato string
+                Dictionary<string, List<PatchStringCreationData>> toEditDatacomparisonResults = new();
+                foreach (NutritionalData modNutData in modifiedNutDataList)
+                {
+                    NutritionalData originalNutData = UserState.HistoricalData.First(hd => hd.NutritionalData?.Id == modNutData.Id).NutritionalData!;
+                    ComparisonResult comparisonResult = Request.CompareObjects<NutritionalData>(originalNutData, modNutData);
+                    List<PatchStringCreationData> patchCreationList = Request.GetPatchStringCreationDataList(comparisonResult.Differences);
+
+                    toEditDatacomparisonResults.Add(originalNutData.Id!, patchCreationList);
+                }
+
+                // Aplicamos los cambios a través de PATCH usando las diferencias de los objetos
+                StringContent patchDataToModNutData = new StringContent(JsonConvert.SerializeObject(toEditDatacomparisonResults), Encoding.UTF8, "application/json");
+                HttpResponseMessage multipleModificationsResponse = await Request.MakePatchPetition("NutritionalData/multiplePatch", patchDataToModNutData);
+            }
+
+
+            /// LOCAL
+            // Modificamos los nutritionalData
+            foreach (NutritionalData modNutData in modifiedNutDataList)
+            {
+                UserState.HistoricalData.First(hd => hd.NutritionalData?.Id == modNutData.Id).NutritionalData = modNutData;
+            }
+        }
+
+        /// BDD
+        // Eliminamos la referencia de Meal en User
+        int mealIdx = UserState.Meals.IndexOf(meal);
+        List<PatchStringCreationData> mealUserDeleteOperation = new() { new() { op = "remove", path = $"/CustomMeals/{mealIdx}" } };
+        StringContent mealUserPatchData = new(
+            JsonConvert.SerializeObject(mealUserDeleteOperation, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+            Encoding.UTF8, "application/json");
+        HttpResponseMessage deleteUserMealReferenceResponse = await Request.MakePatchPetition($"User/{UserState.UserData.Id}", mealUserPatchData);
+
+        // Eliminamos el documento Meal 
+        HttpResponseMessage mealDeleteResponse = await Request.MakeSingleDeletePetition($"Meal/{mealToEdit.Id}");
+
+
+        /// LOCAL
+        // Eliminamos el objeto meal
+        int mealLocalIdx = UserState.Meals.IndexOf(meal);
+        ObservableCollection<Meal> modList = UserState.Meals.Copy();
+        modList.RemoveAt(mealLocalIdx);
+        UserState.Meals = modList;
+
+
+        mealToEdit = null;
+        await RefreshParent();
+    }
+
+    // TOOD Arreglar, no cambia el nutdata - si cambia el meal
+    private async void ApplyEditedMeal()
+    {
+        // Encontramos los objetos que dependen de este
+        List<MealItemData> coincidences = FindElementsDependantOnMeal(mealToEdit!);
+
+        /// Local TEMPORAL
+        // Se recalculan los objetos que dependen de este
+        Dictionary<string, NutritionalData> modNutDataDictionary = new();
+        foreach (MealItemData mealItem in coincidences)
+        {
+            HistoricalData tempHData = UserState.HistoricalData.First(hd => hd.Id == mealItem.HistoricalDataId).GetCopy();
+            NutritionalData tempNutData = tempHData.NutritionalData!;
+
+            foreach ((int dayTime, DayTimeIntakes intakes) in mealItem.DayTimeIntakesWithMeal)
+            {
+                // Se actualizan los totales del dayTimeIntake
+                (int dayTimeIntakeCals, FoodMacros dayTimeIntakeMacros) = Calculus.CalculateDayTimeIntakesCalsMacros(tempNutData!.DayTimeIntakes![dayTime], UserState.Meals.ToList());
+                tempNutData.DayTimeIntakes![dayTime].TotalDayTimeIntakesCalories = dayTimeIntakeCals;
+                tempNutData.DayTimeIntakes![dayTime].TotalDayTimeIntakesMacros = dayTimeIntakeMacros;
+
+                // Se actualizan los totales del nutritionalData
+                (int nutDataCals, FoodMacros nutDataMacros) = Calculus.CalculateNutDataCalsMacros(tempNutData!, UserState.Meals.ToList());
+                tempNutData.TotalNutDataCalories = nutDataCals;
+                tempNutData.TotalNutDataMacros = nutDataMacros;
+            }
+            modNutDataDictionary.Add(mealItem.HistoricalDataId, tempNutData);
+        }
+
+
+        /// BDD
+        // Se actualiza el Meal
+        ComparisonResult mealComparison = Request.CompareObjects<Meal>(meal, mealToEdit!);
+        HttpResponseMessage updateMealResponse = await Request.ApplyChangesWithPatch($"Meal/{mealToEdit!.Id}", mealComparison.Differences);
+
+        // Se genera la comparación entre los objetos anteriores y los nuevos
+        Dictionary<string, List<PatchStringCreationData>> patchDictionary = new();
+        foreach ((string histDataId, NutritionalData nutData) in modNutDataDictionary)
+        {
+            NutritionalData originalNutData = UserState.HistoricalData.First(hd => hd.NutritionalData?.Id == nutData.Id).NutritionalData!;
+            ComparisonResult comparison = Request.CompareObjects<NutritionalData>(originalNutData, nutData);
+            patchDictionary.Add(
+                originalNutData.Id!,
+                Request.GetPatchStringCreationDataList(comparison.Differences)
+            );
+        }
+        StringContent finalPatchToSend = new( JsonConvert.SerializeObject(patchDictionary), Encoding.UTF8, "application/json" );
+
+        // Se actualizan los NutritionalData
+        HttpResponseMessage responseUpdateMultipleNutData = await Request.MakePatchPetition("NutritionalData/multiplePatch", finalPatchToSend);
+
+
+        /// Local GLOBAL
+        foreach ((string histDataId, NutritionalData modNutData) in modNutDataDictionary)
+        {
+            UserState.HistoricalData.First(hd => hd.NutritionalData?.Id == modNutData.Id).NutritionalData = modNutData;
+        }
+        UserState.Meals[UserState.Meals.IndexOf(meal)] = mealToEdit;
+
+
+        isMealEditMode = false;
+        mealToEdit = null;
+
+        await RefreshParent();
+    }
+
+    private List<MealItemData> FindElementsDependantOnMeal(Meal meal)
+    {
+        // Obtenemos los historicalData que tengan un mealIntake con su mealId igual al meal que vamos a editar/eliminar
+        List<HistoricalData> hDataList = UserState.HistoricalData.Where(hd =>
+            hd.NutritionalData?.DayTimeIntakes != null
+            && (
+                hd.NutritionalData?.DayTimeIntakes.Any(dti => dti.Value.Type == 1) == true || 
+                hd.NutritionalData?.DayTimeIntakes.Any(dti => dti.Value.Type == 2) == true
+            )
+            && (hd.NutritionalData?.DayTimeIntakes.Where(dti => dti.Value.MealIntake?.Any(mi => mi?.MealId == meal.Id) == true).Any() ?? false)
+        ).ToList();
+
+        // Procesamos los datos para filtrar los dayTimeIntakes donde los MealIntake sean null
+        List<MealItemData> mealDataList = new();
+        foreach (HistoricalData hData in hDataList)
+        {
+            Dictionary<int, DayTimeIntakes> tempDayTempIntakes = new();
+            foreach ((int dayTime, DayTimeIntakes intakeData) in hData.NutritionalData!.DayTimeIntakes!)
+            {
+                if (intakeData.MealIntake != null && intakeData.MealIntake.Count > 0 && intakeData.MealIntake.Any(x => x?.MealId == meal.Id))
+                {
+                    tempDayTempIntakes.Add(
+                        dayTime,
+                        intakeData
+                    );
+                }
+            }
+            mealDataList.Add(
+                new()
+                {
+                    HistoricalDataId = hData.Id,
+                    NutritionalDataId = hData.NutritionalData!.Id!,
+                    DayTimeIntakesWithMeal = tempDayTempIntakes
+                }
+            );
+        }
+
+        return mealDataList;
+    }
+    #endregion
+
+    private void CancelEditionMeal()
+    {
+        isMealEditMode = false;
+        mealToEdit = null;
+    }
+
+    private async Task RefreshParent()
+    {
+        await onRequestRefresh.InvokeAsync();
+    }
+}

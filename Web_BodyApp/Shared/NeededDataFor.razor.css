@@ -1,0 +1,23 @@
+﻿.infoNeedingData {
+    color: rgb(144, 74, 201);
+    font-size: 0.85rem;
+    margin-left: 15px;
+}
+
+.infoNeedingData span {
+    font-size: .9rem;
+    margin-right: 3px;
+}
+
+.infoNeedingData p,
+.infoNeedingData ul {
+    margin: 0;
+}
+
+.infoNeedingData p {
+    margin-top: 5px;
+}
+
+.infoNeedingData ul {
+    padding-left: 30px;
+}

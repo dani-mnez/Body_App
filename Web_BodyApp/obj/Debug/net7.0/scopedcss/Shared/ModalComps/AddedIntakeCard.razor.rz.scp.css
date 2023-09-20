@@ -1,0 +1,67 @@
+.intakeItemPreview[b-bz79n0rx6r] {
+    padding: 10px;
+    background-color: var(--color-bkg-lightgrey);
+    width: fit-content;
+    border-radius: var(--border-large);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+    .intakeItemPreview p[b-bz79n0rx6r] {
+        margin: 0;
+    }
+
+    .intakeItemPreview span[b-bz79n0rx6r] {
+        font-variation-settings: 'wght' 800;
+    }
+
+    .intakeItemPreview .titleRow p[b-bz79n0rx6r] {
+        font-family: 'Rowdies', sans-serif;
+        font-weight: 300;
+    }
+
+    .intakeItemPreview .titleRow button span[b-bz79n0rx6r] {
+        font-size: 1rem;
+        font-variation-settings: 'wght' 400;
+    }
+
+    .intakeItemPreview .titleRow button[b-bz79n0rx6r] {
+        border: none;
+        border-radius: 5px;
+        background-color: var(--color-bkg-grey);
+        display: flex;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .intakeItemPreview .titleRow button:hover[b-bz79n0rx6r] {
+            background-color: var(--color-btn-hover);
+        }
+
+    .intakeItemPreview > p[b-bz79n0rx6r] {
+        font-size: 12px;
+    }
+
+.titleRow[b-bz79n0rx6r] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.titleRow button[b-bz79n0rx6r] {
+    margin-left: 10px;
+}
+
+.foodIntakeItem[b-bz79n0rx6r] {
+    background-color: var(--color-bkg-food);
+}
+
+.mealIntakeItem[b-bz79n0rx6r] {
+    background-color: var(--color-bkg-meal);
+}
+
+.mealQty span[b-bz79n0rx6r] {
+    font-variation-settings: 'wght' 800;
+}

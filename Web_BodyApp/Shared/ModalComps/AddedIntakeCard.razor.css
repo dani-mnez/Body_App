@@ -1,0 +1,67 @@
+﻿.intakeItemPreview {
+    padding: 10px;
+    background-color: var(--color-bkg-lightgrey);
+    width: fit-content;
+    border-radius: var(--border-large);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+    .intakeItemPreview p {
+        margin: 0;
+    }
+
+    .intakeItemPreview span {
+        font-variation-settings: 'wght' 800;
+    }
+
+    .intakeItemPreview .titleRow p {
+        font-family: 'Rowdies', sans-serif;
+        font-weight: 300;
+    }
+
+    .intakeItemPreview .titleRow button span {
+        font-size: 1rem;
+        font-variation-settings: 'wght' 400;
+    }
+
+    .intakeItemPreview .titleRow button {
+        border: none;
+        border-radius: 5px;
+        background-color: var(--color-bkg-grey);
+        display: flex;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .intakeItemPreview .titleRow button:hover {
+            background-color: var(--color-btn-hover);
+        }
+
+    .intakeItemPreview > p {
+        font-size: 12px;
+    }
+
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.titleRow button {
+    margin-left: 10px;
+}
+
+.foodIntakeItem {
+    background-color: var(--color-bkg-food);
+}
+
+.mealIntakeItem {
+    background-color: var(--color-bkg-meal);
+}
+
+.mealQty span {
+    font-variation-settings: 'wght' 800;
+}

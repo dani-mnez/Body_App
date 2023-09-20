@@ -1,0 +1,105 @@
+.navbar-toggler {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#mainMenu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+#addInfoMainMenuBtns {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mainLinks ::deep a,
+.actionBtn {
+    border: none;
+    border-radius: var(--border-large);
+    height: 45px;
+    width: fit-content;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgb(92, 93, 116);
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.0);
+
+    transition: all .2s ease-in-out;
+    transform-origin: left center;
+    perspective-origin: left center;
+}
+
+.mainLinks ::deep a:hover,
+.actionBtn:hover {
+    box-shadow: var(--shadow-std);
+    transform: perspective(200px) rotateY(-4deg) translateZ(1px);
+}
+
+.mainLinks ::deep a:hover .btn-text,
+.actionBtn:hover .btn-text {
+    display: block;
+}
+
+.mainLinks {
+    background-color: rgb(248, 235, 235);
+}
+
+.mainLinks,
+#addMealBtns,
+#addBodyMetricsBtns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--border-large);
+    box-shadow: var(--shadow-std);
+    width: 64px;
+}
+
+#addMealBtns { background-color: rgb(240, 248, 235) }
+#addBodyMetricsBtns { background-color: rgb(235, 243, 248) }
+
+
+.mainLinks ::deep a.active {
+    background-color: rgb(255, 216, 216);
+    color: rgb(187, 86, 86);
+}
+
+.mainLinks ::deep a span,
+.actionBtn span,
+#endSessionBtn span {
+    margin: 10px;
+}
+
+#endSessionBtn {
+    border: none;
+    background-color: transparent;
+    color: #f66d5b;
+    display: flex;
+    transition: all .2s ease-in-out;
+    align-items: center;
+    margin: 10px;
+    cursor: pointer;
+
+    border-radius: var(--border-large);
+    width: fit-content;
+}
+
+#endSessionBtn:hover {
+    background-color: #f66d5b;
+    color: white;
+}
+
+.btn-text {
+    font-size: 0.9rem;
+    font-variation-settings: 'wght' 600;
+    margin-right: 5px;
+    display: none;
+    white-space: nowrap;
+}

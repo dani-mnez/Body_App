@@ -1,0 +1,287 @@
+﻿#pageContent {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+#daylyEntries {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+#daylyEntries > * {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-radius: var(--border-medium);
+    padding: 10px;
+    background-color: var(--color-bkg-lightgrey);
+    min-height: 150px;
+    width: calc((100% - 10px*4)/5);
+}
+
+.dayTimeTitle {
+    margin: 0;
+    padding: 5px;
+    border-radius: var(--border-medium);
+    font-weight: 400;
+    text-align: center;
+    font-family: 'Rowdies', sans-serif;
+}
+
+/* Colores títulos ingestas diarias */
+#daylyEntries div:nth-child(1) .dayTimeTitle {
+    background-color: hsl(0, 93.33%, 70.59%);
+    color: hsl(0, 37%, 20%);
+}
+
+#daylyEntries div:nth-child(2) .dayTimeTitle {
+    background-color: hsl(340, 55.05%, 57.25%);
+    color: hsl(339, 41%, 18%);
+}
+
+#daylyEntries div:nth-child(3) .dayTimeTitle {
+    background-color: hsl(317.92, 34.22%, 44.12%);
+    color: hsl(319, 35%, 16%);
+}
+
+#daylyEntries div:nth-child(4) .dayTimeTitle {
+    background-color: hsl(275.29, 28.49%, 35.1%);
+    color: hsl(275, 57%, 66%);
+}
+
+#daylyEntries div:nth-child(5) .dayTimeTitle {
+    background-color: hsl(229.57, 35.38%, 25.49%);
+    color: hsl(230, 54%, 60%);
+}
+
+/* Macros de ingestas por tiempo de dia */
+.timeDayMacros {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+}
+
+.timeDayMacros p {
+    margin: 0;
+    width: min-content;
+}
+
+.numericalData {
+    font-variation-settings: 'wght' 700;
+}
+
+.macroTitle {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 400;
+    color: gray;
+}
+/* Fin de lo anterior */
+
+
+/* Tal */
+.timeDayDetailWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+/* Fin de lo anterior */
+
+.entriesWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.noDataCta {
+    text-align: center;
+}
+
+.entriesWrapper > p {
+    text-align: center;
+    color: grey;
+}
+
+.addMealBtn {
+    margin: 0 auto 10px auto;
+}
+
+.addMealBtn,
+#controlDateWrapper > button,
+#setToday,
+::deep .infoCtaBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    border: none;
+    font-variation-settings: 'wght' 650;
+    color: hsl(0, 0%, 30%);
+    border-radius: var(--border-medium);
+    cursor: pointer;
+    transition: background-color .2s ease-in-out, color .2s ease-in-out, border-radius .2s ease-in-out;
+    background-color: var(--color-bkg-slightlydarkgrey);
+}
+
+#setToday {
+    padding: 5px 50px;
+    margin: 0 auto;
+}
+
+.addMealBtn:hover,
+#controlDateWrapper > button:hover,
+#setToday:hover {
+    background-color: var(--color-btn-hover);
+    color: black;
+    border-radius: var(--border-large);
+}
+
+::deep .infoCtaBtn:first-of-type:hover {
+    background-color: var(--btn-yellow-border);
+    color: var(--btn-yellow-bkg);
+    border-radius: var(--border-large);
+}
+
+::deep .infoCtaBtn:last-of-type:hover {
+    background-color: var(--btn-red-border);
+    color: var(--btn-red-bkg);
+    border-radius: var(--border-large);
+}
+
+#controlDateWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 30px;
+}
+
+#controlDateWrapper > p {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    width: 200px;
+    text-align: center;
+    margin: none;
+}
+
+#datePickerWrapper {
+    width: 250px;
+}
+
+#currentDay {
+    text-align: center;
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 400;
+    margin: 5px 0 0 0;
+}
+
+#allDayResume p {
+    margin: 0;
+}
+
+#allDayResume {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--border-large);
+    background-color: var(--color-bkg-lightgrey);
+    min-height: 200px;
+}
+
+#allDayResume h3 {
+    text-align: center;
+    padding: 5px;
+    border-radius: var(--border-medium);
+    background-color: var(--color-bkg-grey);
+    color: gray;
+}
+
+#allDayResume .dataWrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#allDayResume span {
+    font-variation-settings: 'wght' 650;
+}
+
+#foodDetailData,
+#dayFoodEntries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.infoCtaRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.infoCtaRow p {
+    flex: 0 0 100%;
+    text-align: center;
+}
+
+.dataWrapper.noData {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.dataWrapper.noData p {
+    text-align: center;
+    color: grey;
+    padding: 0 50px;
+}
+
+.dataWrapper.noData button:hover {
+    background-color: var(--btn-yellow-border);
+    color: var(--btn-yellow-bkg);
+    border-radius: var(--border-large);
+}
+
+.dataWrapper.editMode ::deep input {
+    background-color: var(--color-bkg-grey);
+}
+
+/* Listado de comidas */
+#allUserMeals {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#mealsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Botón de agregar nueva comida */
+#addNewMealBtn button {
+    height: 100%;
+    background-color: var(--color-bkg-lightgrey);
+    border-radius: var(--border-large);
+    border: 1px dashed grey;
+    padding: 0 10px;
+    cursor: pointer;
+    transition: background-color .2s ease-in-out, color .2s ease-in-out, border-radius .2s ease-in-out;
+    font-variation-settings: 'wght' 650;
+    color: grey;
+}
+
+#addNewMealBtn button:hover {
+    background-color: var(--color-btn-hover);
+    color: black;
+    border-radius: 40px;
+    border: 1px solid grey;
+}

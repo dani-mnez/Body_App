@@ -1,0 +1,133 @@
+.ctaBtns[b-osf03im3si] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    margin: 10px;
+}
+
+    .ctaBtns button[b-osf03im3si] {
+        width: 100%;
+        border: none;
+        background-color: var(--color-bkg-grey);
+        cursor: pointer;
+        padding: 0;
+        border-radius: var(--border-medium);
+        height: 25px;
+        transition: border-color .2s ease-in-out,
+            color .2s ease-in-out,
+            background-color .2s ease-in-out;
+    }
+
+        .ctaBtns button span[b-osf03im3si] {
+            margin: 5px 10px;
+        }
+
+        .ctaBtns button:first-of-type:hover[b-osf03im3si] {
+            color: var(--btn-yellow-bkg);
+            background-color: var(--btn-yellow-border);
+        }
+
+        .ctaBtns button:last-of-type:hover[b-osf03im3si] {
+            color: var(--btn-red-bkg);
+            background-color: var(--btn-red-border);
+        }
+
+.circWrapper[b-osf03im3si],
+.bodyFatMeasuresWrapper[b-osf03im3si],
+.weightCompWrapper[b-osf03im3si] {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 10px 15px;
+    margin: 10px 0;
+}
+
+    .fatMuscPercWrapper[b-osf03im3si] {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* .circWrapper ::deep .dataDiv,
+    .bodyFatMeasuresWrapper ::deep .dataDiv,
+    .weightCompWrapper ::deep .dataDiv {
+        flex: 48%;
+    }*/
+    .circWrapper:has(p)[b-osf03im3si],
+    .bodyFatMeasuresWrapper:has(p)[b-osf03im3si],
+    .fatMuscPercWrapper:has(p)[b-osf03im3si],
+    .weightCompWrapper:has(p)[b-osf03im3si] {
+        justify-content: center;
+    }
+
+    .bodyFatMethodCell[b-osf03im3si], .weightCell[b-osf03im3si], .imcCell[b-osf03im3si], .dateCell[b-osf03im3si] {
+    text-align: center;
+}
+
+        .bodyFatMethodCell p[b-osf03im3si],
+        .weightCell p[b-osf03im3si],
+        .imcCell p[b-osf03im3si],
+        .dateCell p[b-osf03im3si] {
+            display: inline-block;
+            margin: 5px;
+        }
+
+td > p[b-osf03im3si] {
+    text-align: center;
+}
+
+.bodyFatMethodWrapper[b-osf03im3si] {
+    display: flex;
+    flex-direction: column;
+}
+
+.editMode button[b-osf03im3si] {
+    border: none;
+    background-color: var(--color-bkg-grey);
+    color: black;
+}
+
+.editMode button:first-of-type:hover[b-osf03im3si] {
+    color: var(--btn-green-bkg);
+    background-color: var(--btn-green-border);
+}
+
+.editMode button:last-of-type:hover[b-osf03im3si] {
+    color: var(--btn-red-bkg);
+    background-color: var(--btn-red-border);
+}
+
+[b-osf03im3si] .formInputBlock {
+    align-items: flex-start;
+}
+
+[b-osf03im3si] .formInputBlock input {
+    max-width: 80px;
+}
+
+.dateCell[b-osf03im3si]  input {
+    max-width: 100%;
+}
+
+.dateCell[b-osf03im3si]  .formInputBlock {
+    width: fit-content;
+    margin: auto;
+}
+
+.circunferenceInputWrapper[b-osf03im3si] {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 10px 15px;
+    margin: 10px 0;
+}
+
+.calcInfoText[b-osf03im3si] {
+    font-size: 14px;
+    color: dimgrey;
+}
+
+[b-osf03im3si] .formInput {
+    background-color: var(--color-bkg-grey);
+}

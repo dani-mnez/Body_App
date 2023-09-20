@@ -1,0 +1,224 @@
+﻿@using KellermanSoftware.CompareNetObjects;
+@using Microsoft.AspNetCore.JsonPatch;
+@using Newtonsoft.Json;
+@using System.Text;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.AssistClasses.StatusClasses;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject UserStateService UserState
+@inject HttpClient Http
+@inject RequestService Request
+
+<div class="mealDataInfoCard">
+    <div class="intakeDetailBasicInfo">
+        <p class="intakeDetailName">@mealData.Name</p>
+        <p>Cals.:<span>@mealIntakeCalories</span>kcal.</p>
+    </div>
+    <div class="intakeMacrosWrapper">
+        <p>Prots.:<span>@mealIntakeMacros.Prots</span>gr.</p>
+        <p>Carb.:<span>@mealIntakeMacros.Carbs</span>gr.</p>
+        <p>Grasa:<span>@mealIntakeMacros.Fats</span>gr.</p>
+    </div>
+    <div class="intakeDetailTypeQty">
+        @if (!isMealIntakeDetailEditMode)
+        {
+            <p class="mealQty">Cantidad: <span>@mIntakeData.MealServing.ServingQty</span>@(@mIntakeData.MealServing.ServingUnit == 0 ? "%" : "gr.")</p>
+        } else
+        {
+            <div class="formInputBlock">
+                <label for="inputMealQty">Cantidad</label>
+                <InputNumber @bind-Value="@mIntakeDataToEdit!.MealServing.ServingQty" class="formInput" id="inputMealQty" />
+            </div>
+            <div class="formInputBlock">
+                <label for="inputMealQtyType">Tipo de cantidad</label>
+                <InputSelect @bind-Value="@mIntakeDataToEdit.MealServing.ServingUnit" class="formInput" id="inputMealQtyType">
+                    <option value="0">%</option>
+                    <option value="1">gr.</option>
+                </InputSelect>
+            </div>
+        }
+    </div>
+    <div class="intakeDetailCtaBtns @(isMealIntakeDetailEditMode ? "editMode" : "")">
+        @if (!isMealIntakeDetailEditMode)
+        {
+            <button class="infoCtaBtn" @onclick="() => EntryEditModeIntake(mealData.Id!)">Editar</button>
+            <button class="infoCtaBtn" @onclick="() => DeleteIntake(mealData.Id!)">Eliminar</button>
+        }
+        else
+        {
+            <button class="infoCtaBtn" @onclick="ApplyEditedIntake">Aceptar</button>
+            <button class="infoCtaBtn" @onclick="ExitEditionIntake">Cancelar</button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] required public HistoricalData histData { get; set; }
+    [Parameter] required public NutritionalData nutData { get; set; }
+    [Parameter] required public MealIntake mIntakeData { get; set; }
+
+    [Parameter] required public Meal mealData { get; set; }
+    [Parameter] required public int dayTime { get; set; }
+
+    [Parameter] public EventCallback onRequestRefresh { get; set; }
+
+    private int mealIntakeCalories { get; set; }
+    private FoodMacros mealIntakeMacros { get; set; } = new();
+
+    private bool isMealIntakeDetailEditMode { get; set; } = false;
+    private NutritionalData? nutDataToEdit { get; set; } = null;
+    private MealIntake? mIntakeDataToEdit { get; set; } = null;
+
+    protected override void OnParametersSet() {
+        (mealIntakeCalories, mealIntakeMacros) = Calculus.CalculateMealIntakeMacros(mIntakeData, mealData);
+    }
+
+    private void EntryEditModeIntake(string Id)
+    {
+        nutDataToEdit = nutData.GetCopy();
+        mIntakeDataToEdit = nutDataToEdit!.DayTimeIntakes![dayTime].MealIntake!.Find(m => m.MealId == mIntakeData.MealId)!; // esto ya debería de seleccionar el mealIntake correcto
+        isMealIntakeDetailEditMode = true;
+    }
+
+    private async void DeleteIntake(string Id)
+    {
+        nutDataToEdit = nutData.GetCopy();
+
+
+        HistoricalDataStatus histDataStatus = Utils.GetHistoricalDataStatus(histData);
+        DeleteStructureData? delStructData = Utils.ConditionalDeleteInfo(dayTime, true, nutDataToEdit, mealId: mealData.Id)!;
+
+
+        // Si se borra el diccionario -> se borra el nutData
+        if (delStructData?.DeleteDayTimePair == true && nutDataToEdit.DayTimeIntakes!.Keys.Count == 1)
+        {
+            if (!histDataStatus.IsPhysicalData)
+            {
+                /// LOCAL
+                UserState.HistoricalData.Remove(histData);
+
+                /// BDD
+                List<PatchStringCreationData> patchOperations = new() { new() { op = "remove", path = $"/HistoricalData/{UserState.UnorderedHistoricalDataIds.IndexOf(histData.Id)}" } };
+                StringContent patchData = new(JsonConvert.SerializeObject(patchOperations), Encoding.UTF8, "application/json");
+                HttpResponseMessage deleteHistDataUserReferenceResponse = await Request.MakePatchPetition($"User/{UserState.UserData.Id}", patchData);
+
+                HttpResponseMessage histDataDeleteResponse = await Request.MakeSingleDeletePetition($"HistoricalData/{histData.Id}");
+                HttpResponseMessage nutDataDeleteResponse = await Request.MakeSingleDeletePetition($"NutritionalData/{nutData.Id}");
+            }
+            else
+            {
+                /// LOCAL
+                UserState.HistoricalData.First(hd => hd.Id == histData.Id).NutritionalData = null;
+
+                /// BDD
+                List<PatchStringCreationData> patchOperations = new() { new() { op = "remove", path = "/NutritionalData" } };
+                StringContent patchData = new(JsonConvert.SerializeObject(patchOperations), Encoding.UTF8, "application/json");
+                HttpResponseMessage nutDataReferenceDeleteResponse = await Request.MakePatchPetition($"HistoricalData/{histData.Id}", patchData);
+
+                HttpResponseMessage nutDataDeleteResponse = await Request.MakeSingleDeletePetition($"NutritionalData/{nutData.Id}");
+            }
+        }
+        else
+        {
+            /// LOCAL TEMPORAL
+            // Eliminaciones
+            if (delStructData.DeleteDayTimePair) { nutDataToEdit.DayTimeIntakes!.Remove(dayTime); }
+            if (delStructData.DeleteMealIntakeList) { nutDataToEdit.DayTimeIntakes![dayTime].MealIntake = null; }
+            if (delStructData.DeleteMealIntakeItem) { nutDataToEdit.DayTimeIntakes![dayTime].MealIntake!.RemoveAt((int)delStructData.IntakeIndexToDelete!); }
+
+            // Actualizaciones
+            if (delStructData.UpdateDayTimeIntakeType)
+            {
+                nutDataToEdit!.DayTimeIntakes![dayTime].Type = Utils.CreateDayTimeIntakeType(nutDataToEdit!.DayTimeIntakes![dayTime].FoodIntake, nutDataToEdit!.DayTimeIntakes![dayTime].MealIntake);
+            }
+            if (delStructData.UpdateDayTimeIntakeCalMacros)
+            {
+                (int dayTimeIntakeCals, FoodMacros dayTimeIntakeMacros) = Calculus.CalculateDayTimeIntakesCalsMacros(nutDataToEdit!.DayTimeIntakes![dayTime], UserState.Meals.ToList());
+                nutDataToEdit.DayTimeIntakes![dayTime].TotalDayTimeIntakesCalories = dayTimeIntakeCals;
+                nutDataToEdit.DayTimeIntakes![dayTime].TotalDayTimeIntakesMacros = dayTimeIntakeMacros;
+            }
+
+            (int nutDataCals, FoodMacros nutDataMacros) = Calculus.CalculateNutDataCalsMacros(nutDataToEdit!, UserState.Meals.ToList());
+            nutDataToEdit.TotalNutDataCalories = nutDataCals;
+            nutDataToEdit.TotalNutDataMacros = nutDataMacros;
+
+
+            /// LOCAL GLOBAL
+            UserState.HistoricalData.First(x => x.Id == histData.Id).NutritionalData = nutDataToEdit;
+
+
+            /// BDD
+            // Obtenemos las diferencias entre los datos originales y los nuevos
+            ComparisonResult comparisonResult = Request.CompareObjects<NutritionalData>(nutData, nutDataToEdit);
+
+
+            // Hacemos la petición PATCH
+            HttpResponseMessage nutDataPatchResponse = await Request.ApplyChangesWithPatch($"NutritionalData/{nutData.Id}", comparisonResult.Differences);
+        }
+
+
+        nutDataToEdit = null;
+        await RefreshParent();
+    }
+
+    private async void ApplyEditedIntake()
+    {
+        isMealIntakeDetailEditMode = false; // Si lo usamos al final del método parece no funcionar correctamente
+
+
+        /// Calcular los nuevos datos y actualizar la copia local
+        // Macros y calorías totales del nutritionalData
+        (int newCals, FoodMacros newMacros) = Calculus.CalculateMealIntakeMacros(mIntakeDataToEdit!, mealData);
+        mIntakeDataToEdit!.TotalMealIntakeCalories = newCals;
+        mIntakeDataToEdit.TotalMealIntakeMacros = newMacros;
+
+        // Macros y calorías totales del DayTimeIntake
+        DayTimeIntakes dayTimeIntakeToEdit = nutDataToEdit!.DayTimeIntakes![dayTime]; // Esto debería ser nutDataToEdit
+        (int newDayTimeIntakeCals, FoodMacros newDayTimeIntakeMacros) = Calculus.CalculateDayTimeIntakesCalsMacros(dayTimeIntakeToEdit, UserState.Meals.ToList());
+        dayTimeIntakeToEdit.TotalDayTimeIntakesCalories = newDayTimeIntakeCals;
+        dayTimeIntakeToEdit.TotalDayTimeIntakesMacros = newDayTimeIntakeMacros;
+
+        // Macros y calorías del nutritionalData
+        (int newNutDataCals, FoodMacros newNutDataMacros) = Calculus.CalculateNutDataCalsMacros(nutDataToEdit, UserState.Meals.ToList());
+        nutDataToEdit.TotalNutDataCalories = newNutDataCals;
+        nutDataToEdit.TotalNutDataMacros = newNutDataMacros;
+
+
+        /// Actualizar el objeto local
+        UserState.HistoricalData.First(hd => hd.Id == histData.Id).NutritionalData = nutDataToEdit.Copy();
+        mIntakeData = mIntakeDataToEdit.Copy();
+
+        /// BDD
+        // Obtenemos las diferencias entre los datos originales y los nuevos
+        ComparisonResult comparisonResult = Request.CompareObjects<NutritionalData>(nutData, nutDataToEdit);
+
+        // Hacemos la petición PATCH
+        HttpResponseMessage nutDataPatchResponse = await Request.ApplyChangesWithPatch($"NutritionalData/{nutData.Id}", comparisonResult.Differences);
+
+
+        /// Visual
+        // Actualizamos los datos para que se muestren correctamente
+        mealIntakeCalories = newCals;
+        mealIntakeMacros = newMacros;
+
+        mIntakeDataToEdit = null;
+        nutDataToEdit = null;
+
+        StateHasChanged();
+        await RefreshParent();
+    }
+
+    private void ExitEditionIntake()
+    {
+        isMealIntakeDetailEditMode = false;
+        nutDataToEdit = null;
+    }
+
+    private async Task RefreshParent()
+    {
+        await onRequestRefresh.InvokeAsync();
+    }
+}

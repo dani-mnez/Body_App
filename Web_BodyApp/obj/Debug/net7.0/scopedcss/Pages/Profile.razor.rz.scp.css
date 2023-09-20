@@ -1,0 +1,98 @@
+#contactInfo[b-e0xvin8cv2], #bodyInfo[b-e0xvin8cv2] {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 50%;
+}
+
+#bodyTypeWrapper img[b-e0xvin8cv2] {
+    width: 100px;
+    border-radius: var(--border-medium);
+}
+
+#bodyTypeWrapper[b-e0xvin8cv2] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border-radius: var(--border-large);
+    background-color: var(--color-bkg-lightgrey);
+}
+
+#bodyTypeWrapper[b-e0xvin8cv2]  > div {
+    width: 100%;
+}
+
+#infoWrapper[b-e0xvin8cv2] {
+    display: flex;
+    gap: 30px;
+}
+
+.addNewProfileData[b-e0xvin8cv2] {
+    display: flex;
+    justify-content: space-between;
+}
+
+    .addNewProfileData .addNewInfoBtns:only-child[b-e0xvin8cv2] {
+        margin: auto;
+    }
+
+.addNewProfileData[b-e0xvin8cv2]  input,
+.addNewProfileData[b-e0xvin8cv2]  select {
+    border: 1px solid black;
+    border-radius: var(--border-small);
+    font-size: 14px;
+    padding: 2px 5px;
+}
+
+.addNewInfoBtns[b-e0xvin8cv2] {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    align-self: end;
+    margin-left: auto;
+}
+
+.addNewInfoBtns svg[b-e0xvin8cv2] {
+    width: 18px;
+    transition: fill .2s ease-in-out;
+}
+
+button[b-e0xvin8cv2] {
+    border: 1px solid black;
+    background-color: white;
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--border-rounded);
+    height: 20px;
+    transition: border-color .2s ease-in-out, color .2s ease-in-out, background-color .2s ease-in-out;
+}
+
+.addNewInfoBtns:only-child button:hover[b-e0xvin8cv2] {
+    background-color: var(--btn-yellow-bkg);
+    color: var(--btn-yellow-border);
+    border-color: var(--btn-yellow-border);
+}
+
+.addNewInfoBtns:only-child button[b-e0xvin8cv2] {
+    padding: 0 5px;
+}
+
+.addNewInfoBtns:not(:only-child) .acceptBtn:hover[b-e0xvin8cv2] {
+    background-color: var(--btn-green-bkg);
+    border-color: var(--btn-green-border);
+    fill: var(--btn-green-border);
+}
+
+.addNewInfoBtns:not(:only-child) .cancelBtn:hover[b-e0xvin8cv2] {
+    background-color: var(--btn-red-bkg);
+    border-color: var(--btn-red-border);
+    fill: var(--btn-red-border);
+}
+
+.editableDataWrapper[b-e0xvin8cv2] {
+    background-color: var(--color-bkg-lightgrey);
+    padding: 5px 10px;
+    border-radius: var(--border-large);
+
+}

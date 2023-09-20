@@ -1,0 +1,69 @@
+﻿@using Web_BodyApp.Data;
+@inject ModalService ModalService
+@inject IJSRuntime JSRuntime
+
+<nav id="mainMenu" class="@NavMenuCssClass">
+    <nav class="mainLinks">
+        <NavLink class="navLink" href="" Match="NavLinkMatch.All">
+            <span class="material-symbols-outlined me-2">home</span>
+            <span class="btn-text">Resumen</span>
+        </NavLink>
+        <NavLink class="navLink" href="food">
+            <span class="material-symbols-outlined me-2">restaurant</span>
+            <span class="btn-text">Alimentación</span>
+        </NavLink>
+        <NavLink class="navLink" href="historical">
+            <span class="material-symbols-outlined me-2">timeline</span>
+            <span class="btn-text">Físico</span>
+        </NavLink>
+        <NavLink class="navLink" href="profile">
+            <span class="material-symbols-outlined me-2">account_circle</span>
+            <span class="btn-text">Perfil</span>
+        </NavLink>
+    </nav>
+
+    <div id="addInfoMainMenuBtns">
+        <div id="addMealBtns">
+            <button type="button" class="actionBtn" @onclick="() => OpenModal(2)">
+                <span class="material-symbols-outlined">nutrition</span>
+                <span class="btn-text">Añadir ingesta</span>
+            </button>
+            <button type="button" class="actionBtn" @onclick="() => OpenModal(3)">
+                <span class="material-symbols-outlined">restaurant_menu</span>
+                <span class="btn-text">Crear comida</span>
+            </button>
+        </div>
+        <div id="addBodyMetricsBtns">
+            <button type="button" class="actionBtn" @onclick="() => OpenModal(0)">
+                <span class="material-symbols-outlined"> monitor_weight</span>
+                <span class="btn-text">Añadir peso</span>
+            </button>
+            <button type="button" class="actionBtn" @onclick="() => OpenModal(1)">
+                <span class="material-symbols-outlined">add</span>
+                <span class="btn-text">Añadir medidas completas</span>
+            </button>
+        </div>
+    </div>
+
+    <button type="button" id="endSessionBtn" @onclick="DeleteCookie">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="btn-text">Salir</span>
+    </button>
+</nav>
+
+@code {
+    [Parameter] public string NavMenuCssClass { get; set; }
+    [Parameter] public EventCallback OnCookieDeleted { get; set; }
+
+    // Para el modal de agregar datos
+    private async void OpenModal(int inputType)
+    {
+        await ModalService.ShowAsync(inputType, null, null);
+    }
+
+    private async Task DeleteCookie()
+    {
+        await JSRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "userBodyApp");
+        await OnCookieDeleted.InvokeAsync();
+    }
+}

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CompareNETObjects" Version="4.79.0" />
+    <PackageReference Include="Plotly.Blazor" Version="2.18.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\API ASP.NET Core Body App\API ASP.NET Core Body App.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\imgs\fatPercBodies\male\" />
+    <Folder Include="wwwroot\imgs\fatPercBodies\female\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,67 @@
+﻿.mealCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: fit-content;
+    background-color: var(--color-bkg-dark-meal);
+    border-radius: var(--border-large);
+    padding: 15px;
+}
+
+    .mealCard p {
+        margin: 0;
+    }
+
+    .mealCard span {
+        font-variation-settings: 'wght' 650;
+    }
+
+    .mealCard h4 {
+        font-family: 'Rowdies', sans-serif;
+        color: gray;
+        font-weight: 400;
+        margin: 0;
+    }
+
+.mealActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mealCard .mealWeight {
+    margin-bottom: 10px
+}
+
+.mealData {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mealData .firstMealRowData {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.mealData .firstMealRowData ::deep .dataDiv{
+    width: 50%;
+}
+
+.mealData .formInputBlock ::deep input {
+    background-color: var(--color-bkg-grey);
+}
+
+.mealActions.editMode button {
+    background-color: var(--color-bkg-slightlydarkgrey);
+}
+.mealActions.editMode button:first-of-type:hover {
+    color: var(--btn-green-bkg);
+    background-color: var(--btn-green-border);
+}
+
+.mealActions.editMode button:last-of-type:hover {
+    color: var(--btn-red-bkg);
+    background-color: var(--btn-red-border);
+}

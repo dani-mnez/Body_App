@@ -1,0 +1,407 @@
+﻿@using System.Text.Json;
+@using System.Text;
+@using System.Globalization;
+@using KellermanSoftware.CompareNetObjects;
+@using MongoDB.Bson;
+@using System.Reflection;
+@using Newtonsoft.Json;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.Models.PhysicData;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject HttpClient Http
+@inject UserStateService UserState
+@inject RequestService Request
+
+<tr>
+    <td class="dateCell">
+        <p>@entry.Date.ToString("dd-MMM-yyyy", CultureInfo.CreateSpecificCulture("es-ES"))</p>
+    </td>
+    <td class="weightCell">
+        @if (ToEdit)
+        {
+            <div class="formInputBlock">
+                <label for="inputWeightHistorical">Peso</label>
+                <InputNumber @bind-Value="@EntryCopyToEdit!.PhysicalData.Weight" class="formInput" id="inputWeightHistorical" />
+            </div>
+        }
+        else
+        {
+            <p>@(entry.PhysicalData?.Weight.ToString("F1")+"kg" ?? "-")</p>
+        }
+    </td>
+    <td class="circunferencesCell">
+        @if (ToEdit)
+        {
+            <div class="circunferenceInputWrapper">
+                @foreach (var formInput in circInputList)
+                {
+                    <FormInputBlock Id="@formInput.Id" Label="@formInput.Label"
+                                    Value="@formInput.GetValue()"
+                                    ValueChanged="(value) => formInput.SetValue(value)" />
+                }
+            </div>
+        }
+        else
+        {
+            @if (ProcessedCircunferences != null)
+            {
+                <div class="circWrapper">
+                    @foreach (Tuple<string, double> circunference in ProcessedCircunferences)
+                    {
+                        <TitleData title="@circunference.Item1" value="@circunference.Item2.ToString("F0")" unit="cm"/>
+                    }
+                </div>
+            } else
+            {
+                <p>-</p>
+            }
+        }
+    </td>
+    <td class="bodyFatMethodCell">
+        @if (ToEdit)
+        {
+            <div class="formInputBlock">
+                <label for="bodyFatMethod">Método de cálculo de grasa corporal</label>
+                <InputSelect @bind-Value="@EntryCopyToEdit!.PhysicalData.BodyMeasure!.BodyFat!.Method" class="formInput" id="bodyFatMethod">
+                    <option value="0">Seleccione método</option>
+                    <option value="1">Durnin/Womersley</option>
+                    <option value="2">Parrillo</option>
+                    <optgroup label="Jackson/Pollock">
+                        <option value="31">7 medidas</option>
+                        <option value="32">4 medidas</option>
+                        <option value="33">3 medidas</option>
+                    </optgroup>
+                    <option value="4">Cinta métrica</option>
+                </InputSelect>
+            </div>
+        } else
+        {
+            <p>@ProcessedBodyFatMethod</p>
+        }
+    </td>
+    <td class="bodyFatMeasuresCell">
+        @if (ToEdit)
+        {
+            @if (methodToFormInputs.ContainsKey(EntryCopyToEdit!.PhysicalData.BodyMeasure!.BodyFat!.Method))
+            {
+                <div class="bodyFatMeasuresWrapper">
+                    @foreach (var formInput in methodToFormInputs[EntryCopyToEdit!.PhysicalData.BodyMeasure.BodyFat.Method])
+                    {
+                        if (formInput.Sex == 2 || formInput.Sex == UserState!.UserData!.Sex)
+                        {
+                            <FormInputBlock Id="@formInput.Id" Label="@formInput.Label"
+                                            Value="@formInput.GetValue()"
+                            ValueChanged="(value) => formInput.SetValue(value)" />
+                        }
+                    }
+                </div>
+            } else
+            {
+                <p class="calcInfoText">Selecciona un método de cálculo de grasa corporal</p>
+            }
+        } else
+        {
+            @if (ProcessedBodyFatMeasures != null)
+            {
+                string units = (entry.PhysicalData?.BodyMeasure?.BodyFat!.Method == 4) ? "cm" : "mm";
+                string decimals = (entry.PhysicalData?.BodyMeasure?.BodyFat!.Method == 4) ? "F1" : "F0";
+            
+                <div class="bodyFatMeasuresWrapper">
+                    @foreach (var measure in ProcessedBodyFatMeasures)
+                    {
+                        <TitleData title="@measure.Item1" value="@measure.Item2.ToString(decimals)" unit="@units"/>
+                    }
+                </div>
+            } else
+            {
+                <p>-</p>
+            }
+        }
+    </td>
+    <td class="fatMuscPercCell">
+        @if (ToEdit)
+        {
+            <p class="calcInfoText">Campo calculado</p>
+        } else
+        {
+            @if(entry.PhysicalData?.Computed.BodyStats?.FatPerc != null)
+            {
+                <div class="fatMuscPercWrapper">
+                    <TitleData title="Grasa" value="@((entry.PhysicalData.Computed.BodyStats?.FatPerc * 100)?.ToString("F"))" unit="%" />
+                    <TitleData title="Músculo" value="@((entry.PhysicalData.Computed.BodyStats?.MusclePerc * 100)?.ToString("F"))" unit="%" />     
+                </div>
+            } else
+            {
+                <p>-</p>
+            }
+        }
+    </td>
+    <td class="weightCompositionCell">
+        @if (ToEdit)
+        {
+            <p class="calcInfoText">Campo calculado</p>
+        } else
+        {
+            @if (entry.PhysicalData?.Computed?.BodyStats?.WeightComposition != null)
+            {
+                <div class="weightCompWrapper">
+                    <TitleData title="Grasa" value="@entry.PhysicalData?.Computed?.BodyStats?.WeightComposition?.FatWeight.ToString("F2")" unit="kg" />
+                    <TitleData title="Músculo" value="@entry.PhysicalData?.Computed?.BodyStats?.WeightComposition?.MuscleWeight.ToString("F2")" unit="kg" />
+                    <TitleData title="Hueso" value="@entry.PhysicalData?.Computed?.BodyStats?.WeightComposition?.BoneWeight.ToString("F2")" unit="kg" />
+                    <TitleData title="Residual" value="@entry.PhysicalData?.Computed?.BodyStats?.WeightComposition?.ResidualWeight.ToString("F2")" unit="kg" />
+                </div>
+            }
+            else
+            {
+                <p>-</p>
+            }
+        }
+    </td>
+    <td class="imcCell">
+        @if (ToEdit)
+        {
+            <p class="calcInfoText">Campo calculado</p>
+        } else
+        {
+            <p>@(entry.PhysicalData?.Computed.BodyStats?.Imc.ToString("F") ?? "-")</p>
+        }
+    </td>
+    <td class="ctaBtnsCell">
+        <div class="ctaBtns @(ToEdit ? "editMode" : "")">
+            @if (ToEdit)
+            {
+                <button @onclick="AcceptEdit">
+                    <span>Aceptar</span>
+                </button>
+                <button @onclick="CancelEdit">
+                    <span>Cancelar</span>
+                </button>
+            } else
+            {
+                <button @onclick="EnableEdit">
+                    <span>Editar</span>
+                </button>
+                <button @onclick="DeleteEntry">
+                    <span>Eliminar</span>
+                </button>
+            }
+        </div>
+    </td>
+</tr>
+
+@code {
+    #region Parameters
+    [Parameter] public HistoricalData entry { get; set; }
+    [Parameter] public EventCallback onRequestRefresh { get; set; }
+
+    private HistoricalData? EntryCopyToEdit { get; set; } = null;
+    public List<Tuple<string, double>>? ProcessedCircunferences = null;
+    public string ProcessedBodyFatMethod;
+    public List<Tuple<string, double>>? ProcessedBodyFatMeasures = null;
+
+
+    bool ToEdit { get; set; } = false;
+    private void EnableEdit()
+    {
+        // Se crea una copia del objeto para poder cancelar la edición
+        // y restaurar los valores originales en caso necesario
+        EntryCopyToEdit = entry.GetCopy();
+        EntryCopyToEdit.PhysicalData = entry.PhysicalData.GetCopy();
+
+        // Para la creación del formulario de medidas de grasa corporal
+        methodToFormInputs = Utils.NewFatInputData(EntryCopyToEdit!.PhysicalData);
+        // Para la creación/reset de campos de circunferencias
+        circInputList = Utils.NewCircInputList(EntryCopyToEdit!.PhysicalData);
+
+
+        ToEdit = true;
+
+        // Ajustamos el objeto para que tenga todos los campos necesarios para su edición
+        if (EntryCopyToEdit.PhysicalData.BodyMeasure == null)
+        {
+            EntryCopyToEdit.PhysicalData.BodyMeasure = new BodyMeasure();
+        }
+
+        if (EntryCopyToEdit.PhysicalData.BodyMeasure.BodyFat == null)
+        {
+            EntryCopyToEdit.PhysicalData.BodyMeasure.BodyFat = new BodyFat
+            {
+                Method = 0,
+                Measures = new Measures
+                {
+                    Chest = null,
+                    Abdominal = null,
+                    Thigh = null,
+                    Tricep = null,
+                    Subscapular = null,
+                    Suprailiac = null,
+                    MidAxilary = null,
+                    Bicep = null,
+                    LowerBack = null,
+                    Calf = null,
+                    TapeNeck = null,
+                    TapeAbdomen = null,
+                    TapeWaist = null,
+                    TapeHip = null
+                }
+            };
+        }
+        if (EntryCopyToEdit.PhysicalData.BodyMeasure.Circunferences == null)
+        {
+            EntryCopyToEdit.PhysicalData.BodyMeasure.Circunferences = new Circunferences();
+        }
+    }
+
+    private Dictionary<int, List<FormInputInfo>> methodToFormInputs;
+    private List<FormInputInfo> circInputList;
+    #endregion
+
+    protected override void OnInitialized()
+    {
+        UserState.PropertyChanged += (s, e) => InvokeAsync(StateHasChanged);
+
+        UpdateProcessedData();
+    }
+
+    private void UpdateProcessedData() {
+        // Actualización de los datos (cálculos y demás (estéticos))
+        if (entry.PhysicalData?.BodyMeasure != null)
+        {
+            if (entry.PhysicalData.BodyMeasure?.Circunferences != null)
+            {
+                ProcessedCircunferences = Utils.ProcessCircunferences(entry.PhysicalData.BodyMeasure);
+            }
+        }
+        ProcessedBodyFatMethod = Utils.ProcessBodyFatMethod(entry.PhysicalData?.BodyMeasure?.BodyFat);
+        ProcessedBodyFatMeasures = Utils.ProcessBodyFatMeasures(entry.PhysicalData?.BodyMeasure?.BodyFat);
+    }
+
+    public async Task DeleteEntry()
+    {
+        // Se elimina de la base de datos el objeto physicaldata
+        HttpResponseMessage physicalDataDeleteResponse = await Request.MakeSingleDeletePetition($"PhysicalData/{entry.PhysicalData?.Id}");
+
+        // Se elimina de la base de datos el objeto historicaldata si existe Y lo único que existe es el objeto historicaldata
+        if (entry.NutritionalData == null && entry.PhysicalData != null)
+        {
+            HttpResponseMessage historicalDataDeleteResponse = await Request.MakeSingleDeletePetition($"HistoricalData/{entry.Id}");
+
+            // Se elimina la referencia en el usuario
+            // Eliminamos la referencia de Meal en User
+            int histDataIdx = UserState.UnorderedHistoricalDataIds.IndexOf(entry.Id);
+            List<PatchStringCreationData> historicalDataUserDeleteOperation = new() { new() { op = "remove", path = $"/HistoricalData/{histDataIdx}" } };
+            StringContent historicalDataUserPatchData = new(
+                JsonConvert.SerializeObject(historicalDataUserDeleteOperation, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                Encoding.UTF8, "application/json");
+            HttpResponseMessage deleteUserMealReferenceResponse = await Request.MakePatchPetition($"User/{UserState.UserData.Id}", historicalDataUserPatchData);
+
+            // Se elimina el dato de la clase
+            UserState.HistoricalData.Remove(entry);
+        } else
+        {
+            // Si HAY mas cosas además de la referencia al objeto physicaldata, se elimina solo la referencia
+            // Eliminamos la referencia en HistoricalData
+            List<PatchStringCreationData> patchOperations = new() { new() { op = "remove", path = "/PhysicalData" } };
+            StringContent patchData = new(
+                JsonConvert.SerializeObject(patchOperations, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                Encoding.UTF8, "application/json");
+            HttpResponseMessage responseDeletePhysicalDataReferenceInHistoricalData = await Request.MakePatchPetition($"HistoricalData/{entry.Id}", patchData);
+
+
+            int idxOfHistoricalDataToModify = UserState.HistoricalData.IndexOf(entry);
+            UserState.HistoricalData[idxOfHistoricalDataToModify].PhysicalData = null;
+        }
+
+        await RefreshParent();
+    }
+
+    public async Task AcceptEdit()
+    {
+        ToEdit = false;
+
+        ProcessCopiedClassToWriteInDB();
+
+        // Si se edita el objeto PhyisicalData
+        ComparisonResult physDataComparison = Request.CompareObjects(entry.PhysicalData!, EntryCopyToEdit!.PhysicalData!);
+        if (!physDataComparison.AreEqual)
+        {
+            HttpResponseMessage updatePhysicalResponseMessage = await Request.ApplyChangesWithPatch($"PhysicalData/{entry.PhysicalData!.Id}", physDataComparison.Differences);
+        }        
+
+        // Se actualiza el dato de la clase
+        // TODO Esto de aqui abajo sería innecesario porque ya se está haciendo en entry = EntryCopyToEdit, no?
+        int IndexOfEntry = UserState.HistoricalData.IndexOf(entry); // TODO No sería mejor por la id?
+        UserState.HistoricalData[IndexOfEntry] = EntryCopyToEdit!;
+
+        entry = EntryCopyToEdit!;
+        UpdateProcessedData();
+        StateHasChanged();
+
+        await RefreshParent();
+    }
+
+    private void ProcessCopiedClassToWriteInDB() {
+        // Se compruebas los datos y se procesan según convenga para su correcta escritura en la BDD
+        var physicalData = EntryCopyToEdit!.PhysicalData;
+        var bodyMeasure = physicalData?.BodyMeasure;
+
+        // Comprobar si se han introducido datos en los campos de circunferencias (que no sean todas 0)
+        if (bodyMeasure?.Circunferences != null && bodyMeasure!.Circunferences.GetType().GetProperties().All(circ => (double)circ.GetValue(bodyMeasure!.Circunferences!)! == 0))
+            bodyMeasure!.Circunferences = null;
+
+        // Si no se ha seleccionado ningún método de medida de grasa corporal, se ponen null los campos correspondientes
+        if (bodyMeasure?.BodyFat?.Method == 0)
+        {
+            bodyMeasure!.BodyFat = null;
+            physicalData!.Computed.BodyStats.FatPerc = null;
+            physicalData.Computed.BodyStats.MusclePerc = null;
+            physicalData.Computed.BodyStats.WeightComposition = null;
+        }
+        else
+        {
+            // Si se ha seleccionado un metodo de medida de grasa corporal, se calcula el porcentaje de grasa y se actualizan los campos correspondientes
+            if (bodyMeasure!.BodyFat!.Measures.GetType().GetProperties().Any(mea => mea.GetValue(bodyMeasure.BodyFat.Measures) != null))
+            {
+                // Cálculo de grasa corporal
+                physicalData!.Computed.BodyStats.FatPerc = Calculus.FatPercentageCalc( UserState.UserData!, physicalData.Weight, bodyMeasure.BodyFat );
+
+                // Cálculo de composición corporal
+                physicalData.Computed.BodyStats.WeightComposition = Calculus.WeightCompositionCalc(
+                    UserState!.UserData!.Sex, physicalData.Weight,
+                    UserState.UserData.Height, (double)physicalData.Computed.BodyStats.FatPerc!
+                );
+
+                // Cálculo de porcentaje de músculo
+                physicalData.Computed.BodyStats.MusclePerc = Calculus.MusclePercentageCalc(
+                    physicalData.Weight, (double)physicalData!.Computed.BodyStats.WeightComposition!.MuscleWeight
+                );
+            }
+        }
+
+        if (entry.PhysicalData!.Weight != physicalData!.Weight)
+        {
+            physicalData!.Computed.Nutrients = Calculus.MacrosObjetivo( UserState.UserData, physicalData.Weight );
+            physicalData.Computed.BodyStats.Imc = Calculus.ImcCalc( UserState.UserData!.Height, physicalData.Weight );
+        }
+    }
+
+    public void CancelEdit() { ToEdit = false; }
+
+    private bool DifferentPhysicalDataClasses(PhysicalData pd1, PhysicalData pd2)
+    {
+        // Se comprueban las diferencias entre los objetos PhysicalData para únicamente actualizar los campos que hayan cambiado
+        CompareLogic compareLogic = new CompareLogic();
+        ComparisonResult result = compareLogic.Compare(pd1, pd2);
+
+        return !result.AreEqual;
+    }
+
+    private async Task RefreshParent()
+    {
+        await onRequestRefresh.InvokeAsync();
+    }
+}

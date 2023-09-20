@@ -1,0 +1,17 @@
+﻿<div class="formInputBlock">
+    <label for="@Id">@Label</label>
+    <InputNumber Value="Value" ValueChanged="ValueChanged" ValueExpression="() => ValueProperty" class="formInput" id="@Id" />
+</div>
+
+@code {
+    private double? ValueProperty
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Label { get; set; }
+    [Parameter] public double? Value { get; set; }
+    [Parameter] public EventCallback<double?> ValueChanged { get; set; }
+}

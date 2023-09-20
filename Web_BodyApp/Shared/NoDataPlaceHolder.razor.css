@@ -1,0 +1,24 @@
+.noDataPlaceHolder {
+    min-height: 50px;
+    border: 1px dashed gray;
+    border-radius: var(--border-large);
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.noDataMainMessage
+{
+    font-size: 0.9rem;
+    font-variation-settings: 'wght' 400;
+    margin: 0;
+    text-align: center;
+}
+
+.noDataMainMessage span
+{
+    color: black;
+    font-variation-settings: 'wght' 700;
+}

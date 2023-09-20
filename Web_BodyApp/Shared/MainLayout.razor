@@ -1,0 +1,419 @@
+﻿@inherits LayoutComponentBase
+@using System.Text;
+@using MongoDB.Bson;
+@using System.Collections.ObjectModel;
+@using Web_BodyApp.Data
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using MongoDB.Driver;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.Models.PhysicData;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject UserStateService UserState
+@inject IHttpContextAccessor HttpContextAccessor
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject IJSRuntime JSRuntime
+
+
+<PageTitle>BODYAPP</PageTitle>
+
+<div class="page @(!userIsLogged ? "login" : "")">
+    @if (userIsLogged)
+    {
+        <div class="navBarTopRow">
+            <a class="navbarLogo" href="">
+                <img src="./imgs/logo_bodyapp.svg" alt="App logo" />
+            </a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+
+        <div class="sidebar">
+            <NavMenu NavMenuCssClass="@NavMenuCssClass" OnCookieDeleted="OnCookieDeleted" />
+        </div>
+
+        <main>
+            <article>
+                @Body
+            </article>
+        </main>
+    }
+    else
+    {
+        <div id="loginFormWrapper">
+            <div id="logSplashTitle">
+                <h1>Bienvenido a</h1>
+                <img src="./imgs/logo_bodyapp.svg" alt="App logo" />
+            </div>
+            <EditForm id="loginForm" Model="@loginForm" OnValidSubmit="AuthUser">
+                <div class="formInputBlock">
+                    <label for="inputMail">Email</label>
+                    <InputText @bind-Value="@loginForm.Mail" type="email" class="formInput" id="inputMail" />
+                </div>
+                <div class="formInputBlock">
+                    <label for="password">Contraseña</label>
+                    <InputText @bind-Value="@loginForm.Password" type="password" class="formInput" id="password" />
+                </div>
+                <div class="formInputBlockCheckbtn">
+                    <InputCheckbox @bind-Value="@loginForm.Remember" type="checkbox" class="form-check-input" id="rememberCheck" />
+                    <label for="rememberCheck">Recuérdame</label>
+                </div>
+                <button id="sendBtn" type="submit">Enviar</button>
+            </EditForm>
+            <p>Si quieres acceder a una cuenta de ejemplo totalmente funcional, usa:
+                <br />Mail:<span>@dummyMail</span>
+                <br />Contraseña:<span>@dummyPwd</span>
+            </p>
+        </div>
+    }
+</div>
+
+@code {
+    private LoginFormModel loginForm = new LoginFormModel();
+    CookieInfoModel? userCookie;
+    private string dummyMail;
+    private string dummyPwd;
+    private bool userIsLogged = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var dummyUserResponse = await Http.GetAsync("http://localhost:5047/api/User/6485e2688c31a9f639d0e732");
+        User? dummyUser = await dummyUserResponse.Content.ReadFromJsonAsync<User>();
+        dummyMail = dummyUser!.Mail;
+        dummyPwd = dummyUser!.Password;
+    }
+
+    private async Task<User?> GetUserFromApi(bool postMethod, string? userId = null, Dictionary<string, string>? postData = null)
+    {
+        var userResponse = (postMethod) 
+            ? await Http.PostAsJsonAsync("http://localhost:5047/api/User/authenticate", postData!)
+            : await Http.GetAsync($"http://localhost:5047/api/User/{userId!}");
+
+        if (!userResponse.IsSuccessStatusCode)
+        {
+            // TODO Gestionar error como: usuario no encontrado, contraseña incorrecta, etc
+            // TODO Habrá que agregar un bool para la parte UI que muestre un mensaje de error como "Usuario no encontrado" o "Contraseña incorrecta", etc
+            return null;
+        }
+
+        return await userResponse.Content.ReadFromJsonAsync<User>();
+    }
+
+    private async Task ConstructAndAssignUserDTO(User user)
+    {
+        UserDTO internalUser = new()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Mail = user.Mail,
+            Password = user.Password,
+            BirthDate = user.BirthDate,
+            Age = CalculateAge((DateTime)user.BirthDate, DateTime.Now),
+            Height = user.Height,
+            BodyType = user.BodyType,
+            ActivityLevel = user.ActivityLevel,
+            Goal = user.Goal,
+            Sex = user.Sex,
+            FatLooseRate = user.FatLooseRate
+        };
+        UserState.UserData = internalUser;
+
+        if (user.HistoricalData!.Count > 0)
+        {
+            UserState.UnorderedHistoricalDataIds = user.HistoricalData;
+            UserState.HistoricalData = await GetAllUserHistoricalData(user);
+        }
+        if (user.CustomMeals!.Count > 0) UserState.Meals = await GetAllUserMeals(user.CustomMeals);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && UserState.UserData == null)
+        {
+            userCookie = await ReadCookies("userBodyApp");
+
+            if (userCookie?.Remember == true)
+            {
+                User? user = await GetUserFromApi(
+                    userId: userCookie.Id,
+                    postMethod: false
+                );
+                if (user == null) return;
+
+                await ConstructAndAssignUserDTO(user);
+
+                userIsLogged = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    // Para el formulario de login (si no hay cookies o si las cookies no tienen remember a true)
+    private async Task AuthUser()
+    {
+        var postBodyData = new Dictionary<string, string>
+        {
+            { "Mail", loginForm.Mail },
+            { "Password", loginForm.Password }
+        };
+        User? user = await GetUserFromApi(
+            postMethod: true,
+            postData: postBodyData
+        );
+        if (user == null) return;
+
+        await ConstructAndAssignUserDTO(user);
+
+        if (userCookie == null || !userCookie.Remember && loginForm.Remember)
+        {
+            var cookieData = new Dictionary<string, object>
+            {
+                { "Id", user.Id },
+                { "Remember", loginForm.Remember }
+            };
+            await WriteCookies("userBodyApp", cookieData, 30);
+        }
+
+        userIsLogged = true;
+        StateHasChanged();
+    }
+
+    protected async Task WriteCookies(string cookieName, object cookieValue, int? daysToExpire = null)
+    {
+        var serializedCookieValue = JsonSerializer.Serialize(cookieValue);
+        await JSRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", cookieName, serializedCookieValue, daysToExpire);
+    }
+
+    protected async Task<CookieInfoModel?> ReadCookies(string cookieName)
+    {
+        string cookieString = await JSRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", cookieName);
+        return (cookieString != "") ? JsonSerializer.Deserialize<CookieInfoModel>(cookieString) : null;
+    }
+
+    // Obtener los datos completos del usuario ---------------------------------------------------------//
+    // TODO Se obtienen FoodIntake con Count = 0, cuando en ese tipo de casos deberían de ser null (la BDD está correcta - el problema está en este archivo)
+    protected async Task<ObservableCollection<HistoricalData>> GetAllUserHistoricalData(User user)
+    {
+        ObservableCollection<HistoricalData> result = new();
+
+        List<HistoricalDataDTO>? listHDDTOReturned = await GetUserHistoricalDataDTOsAsync(user.HistoricalData); // Obtenemos todos los datos históricos del usuario
+        if (listHDDTOReturned != null)
+        {
+            List<HistoricalData> histDataList = new();
+
+            // Obtenemos todos los datos físicos de los datos históricos del usuario
+            var allPhysicalDataTask = GetUserPhysicalDataAsync(
+                listHDDTOReturned.Select(hd => hd.PhysicalData).Where(pdId => pdId != null).ToList()!
+            );
+
+            // Obtenemos todos los datos nutricionales de los datos históricos del usuario
+            var allNutritionalDataDTOTask = GetUserNutritionalDataDTOAsync(
+                listHDDTOReturned.Select(hd => hd.NutritionalData).Where(ndId => ndId != null).ToList()!
+            );
+
+
+            await Task.WhenAll(allPhysicalDataTask, allNutritionalDataDTOTask); // Juntar las tareas es más eficiente
+
+            List<PhysicalData>? allPhysicalData = await allPhysicalDataTask;
+            List<NutritionalDataDTO>? allNutritionalDataDTO = await allNutritionalDataDTOTask;
+
+
+            /// Creamos los nutritionalData a partir del DTO
+            // Recorremos cada nutritionalDataDTO y sacamos un listado de FoodData y MealIntake
+            List<NutritionalData> allNutritionalData = new();
+
+            if (allNutritionalDataDTO != null) {
+                Dictionary<string, Dictionary<int, List<string>>> tempListFoodDataDictById = new();
+                foreach (NutritionalDataDTO nDataDTO in allNutritionalDataDTO)
+                {
+                    if (nDataDTO.DayTimeIntakes == null) {
+                        NutritionalData tempNutData = new()
+                        {
+                            Id = nDataDTO.Id,
+                            DayTimeIntakes = null,
+                            TotalNutDataCalories = nDataDTO.TotalNutDataCalories,
+                            TotalNutDataMacros = nDataDTO.TotalNutDataMacros
+                        };
+                        allNutritionalData.Add(tempNutData);
+                        continue;
+                    }
+                    else
+                    {
+                        Dictionary<int, List<string>> tempFoodDataDict = nDataDTO.DayTimeIntakes
+                           .Where(dayTimeIntake => dayTimeIntake.Value.Type != 1)
+                           .ToDictionary(dayTimeIntake => dayTimeIntake.Key, dayTimeIntake => dayTimeIntake.Value.FoodIntake!);
+
+                        if (tempFoodDataDict.Count > 0) tempListFoodDataDictById.Add(nDataDTO.Id!,tempFoodDataDict);
+                    }
+                }
+
+                List<string> allFoodDataIds = tempListFoodDataDictById
+                    .SelectMany( dict => dict.Value.SelectMany(dict2 => dict2.Value) ).ToList();
+
+                List<FoodData>? allFoodData = null;
+                if (allFoodDataIds.Count > 0)
+                {
+                    var allFoodDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/FoodData/list", allFoodDataIds);
+                    allFoodData = await allFoodDataResponse.Content.ReadFromJsonAsync<List<FoodData>>();
+                }
+
+                // Pasamos de diccionarios DTO a Models
+                foreach (NutritionalDataDTO nDataDTO in allNutritionalDataDTO)
+                {
+                    if (nDataDTO.DayTimeIntakes != null)
+                    {
+                        NutritionalData tempNutData = new()
+                        {
+                            Id = nDataDTO.Id,
+                            DayTimeIntakes = null,
+                            TotalNutDataCalories = nDataDTO.TotalNutDataCalories,
+                            TotalNutDataMacros = nDataDTO.TotalNutDataMacros
+                        };
+
+
+                        Dictionary<int, DayTimeIntakes> tempDayTimeIntakes = new();
+
+                        foreach (var (dayTime, dayTimeIntakes) in nDataDTO.DayTimeIntakes)
+                        {
+                            List<FoodData>? tempFoodDataList = null;
+                            if (dayTimeIntakes.FoodIntake != null)
+                            {
+                                tempFoodDataList = new();
+                                foreach (string foodId in dayTimeIntakes.FoodIntake)
+                                {
+                                    tempFoodDataList.Add(allFoodData?.Find(fd => fd.Id == foodId)!);
+                                }
+                            }
+
+                            DayTimeIntakes tempDayTimeIntake = new()
+                            {
+                                Type = dayTimeIntakes.Type,
+                                FoodIntake = tempFoodDataList,
+                                MealIntake = dayTimeIntakes.MealIntake,
+                                TotalDayTimeIntakesCalories = dayTimeIntakes.TotalDayTimeIntakesCalories,
+                                TotalDayTimeIntakesMacros = dayTimeIntakes.TotalDayTimeIntakesMacros
+                            };
+
+                            tempDayTimeIntakes.Add(dayTime, tempDayTimeIntake);
+                        }
+
+                        tempNutData.DayTimeIntakes = tempDayTimeIntakes;
+                        allNutritionalData.Add(tempNutData);
+                    }
+                }
+            }
+
+            foreach (HistoricalDataDTO hDataDTO in listHDDTOReturned)
+            {
+                HistoricalData tempHD = new()
+                    {
+                        Id = hDataDTO.Id,
+                        Date = hDataDTO.Date,
+                        PhysicalData = hDataDTO.PhysicalData != null ? allPhysicalData?.Find(pd => pd.Id == hDataDTO.PhysicalData) : null,
+                        NutritionalData = hDataDTO.NutritionalData != null ? allNutritionalData.Find(nd => nd.Id == hDataDTO.NutritionalData) : null
+                    };
+                histDataList.Add(tempHD);
+            }
+
+            result.AddRange(histDataList.OrderBy(hd => hd.Date));
+        }
+        return result;
+    }
+
+    private async Task<List<HistoricalDataDTO>?> GetUserHistoricalDataDTOsAsync(List<string> hdList)
+    {
+        if (hdList.Count == 0) return null;
+
+        try
+        {
+            var allUserHistData = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/HistoricalData/list", hdList);
+
+            if (!allUserHistData.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos históricos: {allUserHistData.StatusCode}");
+
+            return await allUserHistData.Content.ReadFromJsonAsync<List<HistoricalDataDTO>>();
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<List<PhysicalData>?> GetUserPhysicalDataAsync(List<string> physDataIdList)
+    {
+        if (physDataIdList.Count == 0) return null;
+
+        try
+        {
+            var allPhysicalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/PhysicalData/list", physDataIdList);
+
+            if (!allPhysicalDataResponse.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos físicos: {allPhysicalDataResponse.StatusCode}");
+
+            return await allPhysicalDataResponse.Content.ReadFromJsonAsync<List<PhysicalData>>();
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<List<NutritionalDataDTO>?> GetUserNutritionalDataDTOAsync(List<string> nutDataIdList)
+    {
+        if (nutDataIdList.Count == 0) return null;
+
+        try
+        {
+            var allNutritionalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/NutritionalData/list", nutDataIdList);
+
+            if (!allNutritionalDataResponse.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos nutricionales: {allNutritionalDataResponse.StatusCode}");
+
+            return await allNutritionalDataResponse.Content.ReadFromJsonAsync<List<NutritionalDataDTO>>();
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<ObservableCollection<Meal>> GetAllUserMeals(List<string> userMeals)
+    {
+        if (userMeals.Count == 0) return new ObservableCollection<Meal>();
+
+        try {
+            var mealHttpResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/Meal/list", userMeals);
+            List<Meal>? mealListReturned = await mealHttpResponse.Content.ReadFromJsonAsync<List<Meal>>();
+
+            return new ObservableCollection<Meal>(mealListReturned!);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return new ObservableCollection<Meal>();
+        }
+    }
+
+    private int CalculateAge(DateTime birthDate, DateTime date)
+    {
+        int age = date.Year - birthDate.Year;
+        if (DateTime.Now.DayOfYear < birthDate.DayOfYear) age -= 1;
+        
+        return age;
+    }
+
+
+    // Funcionamiento básico del menú de navegación ---------------------------------------------------------//
+    private bool collapseNavMenu = false;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu() { collapseNavMenu = !collapseNavMenu; }
+
+    public void OnCookieDeleted()
+    {
+        userIsLogged = false;
+        StateHasChanged();
+    }
+}

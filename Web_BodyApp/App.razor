@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Http
+@using System.Net.Http
+@using Web_BodyApp.Data.Models
+@using Web_BodyApp.Data;
+@using System.Text.Json.Serialization
+@using System.Text.Json
+@using Web_BodyApp.Data.ServiceClasses;
+@inherits LayoutComponentBase
+@inject ModalService ModalService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject HttpClient Http
+@inject UserStateService UserState
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+<Modal />
+
+@code {
+}

@@ -1,0 +1,98 @@
+#contactInfo, #bodyInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 50%;
+}
+
+#bodyTypeWrapper img {
+    width: 100px;
+    border-radius: var(--border-medium);
+}
+
+#bodyTypeWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border-radius: var(--border-large);
+    background-color: var(--color-bkg-lightgrey);
+}
+
+#bodyTypeWrapper ::deep > div {
+    width: 100%;
+}
+
+#infoWrapper {
+    display: flex;
+    gap: 30px;
+}
+
+.addNewProfileData {
+    display: flex;
+    justify-content: space-between;
+}
+
+    .addNewProfileData .addNewInfoBtns:only-child {
+        margin: auto;
+    }
+
+.addNewProfileData ::deep input,
+.addNewProfileData ::deep select {
+    border: 1px solid black;
+    border-radius: var(--border-small);
+    font-size: 14px;
+    padding: 2px 5px;
+}
+
+.addNewInfoBtns {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    align-self: end;
+    margin-left: auto;
+}
+
+.addNewInfoBtns svg {
+    width: 18px;
+    transition: fill .2s ease-in-out;
+}
+
+button {
+    border: 1px solid black;
+    background-color: white;
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--border-rounded);
+    height: 20px;
+    transition: border-color .2s ease-in-out, color .2s ease-in-out, background-color .2s ease-in-out;
+}
+
+.addNewInfoBtns:only-child button:hover {
+    background-color: var(--btn-yellow-bkg);
+    color: var(--btn-yellow-border);
+    border-color: var(--btn-yellow-border);
+}
+
+.addNewInfoBtns:only-child button {
+    padding: 0 5px;
+}
+
+.addNewInfoBtns:not(:only-child) .acceptBtn:hover {
+    background-color: var(--btn-green-bkg);
+    border-color: var(--btn-green-border);
+    fill: var(--btn-green-border);
+}
+
+.addNewInfoBtns:not(:only-child) .cancelBtn:hover {
+    background-color: var(--btn-red-bkg);
+    border-color: var(--btn-red-border);
+    fill: var(--btn-red-border);
+}
+
+.editableDataWrapper {
+    background-color: var(--color-bkg-lightgrey);
+    padding: 5px 10px;
+    border-radius: var(--border-large);
+
+}

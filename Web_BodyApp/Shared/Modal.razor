@@ -1,0 +1,426 @@
+﻿@using System.Text.Json;
+@using System.Text;
+@using System.Diagnostics;
+@using MongoDB.Bson;
+@using Web_BodyApp.Data
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.AssistClasses.StatusClasses;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data.Models.PhysicData;
+@using Web_BodyApp.Data.ServiceClasses;
+@using Web_BodyApp.Shared.ModalComps
+@inject ModalService ModalService
+@inject HttpClient Http
+@inherits ModalFunctions
+
+
+<div id="inputModal" class="@ModalClass" @ref="ModalElement" @onclick="Close">
+    <div class="modal-content @ModalClass" @onclick:stopPropagation>
+        <span id="closeBtn" @onclick="Close" class="material-symbols-outlined">close</span>
+        @if (inputType == 0 || inputType == 1)
+        {
+            <EditForm Model="@historicalData" OnValidSubmit="() => HandleValidSubmit( 1, Close )" id="addWeightDataForm">
+                <div id="modalFirstLine">
+                    <h3>Datos básicos</h3>
+                    <div class="firstLineInputs">
+                        <div class="formInputBlock">
+                            <label for="inputDate">Fecha*</label>
+                            <InputDate @bind-Value="@selectedDate" class="formInput" id="inputDate" />
+                        </div>
+                        @if (validDate) {
+                            <div class="formInputBlock">
+                                <label for="inputWeight">Peso*</label>
+                                <InputNumber @bind-Value="@tempPhysicalData.Weight" class="formInput" id="inputWeight" />
+                            </div>
+                        }
+                    </div>
+                </div>
+                @if (validDate)
+                {
+                    @if (inputType == 1)
+                    {
+                        <div id="bodyFatInputs">
+                            <h3>Medidas grasa corporal</h3>
+                            <div class="formInputBlock">
+                                <label for="bodyFatMethod">Método de cálculo de grasa corporal*</label>
+                                <InputSelect @bind-Value="@tempPhysicalData.BodyMeasure!.BodyFat!.Method" class="formInput" id="bodyFatMethod">
+                                    <option value="0">Seleccione método</option>
+                                    <option value="1">Durnin/Womersley</option>
+                                    <option value="2">Parrillo</option>
+                                    <optgroup label="Jackson/Pollock">
+                                        <option value="31">7 medidas</option>
+                                        <option value="32">4 medidas</option>
+                                        <option value="33">3 medidas</option>
+                                    </optgroup>
+                                    <option value="4">Cinta métrica</option>
+                                </InputSelect>
+                            </div>
+                            <div id="inputBodyFatMeasures">
+                                <div id="inputBodyFatMeasures">
+                                    @if (methodToFormInputs.ContainsKey(tempPhysicalData.BodyMeasure.BodyFat.Method))
+                                    {
+                                        foreach (var formInput in methodToFormInputs[tempPhysicalData.BodyMeasure.BodyFat.Method])
+                                        {
+                                            if (formInput.Sex == 2 || formInput.Sex == UserState!.UserData!.Sex)
+                                            {
+                                                <FormInputBlock Id="@formInput.Id" Label="@formInput.Label"
+                                                Value="@formInput.GetValue()"
+                                                ValueChanged="(value) => formInput.SetValue(value)" />
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div id="circunferencesInputs">
+                            <h3>Medidas de circunferencia</h3>
+                            @foreach (var formInput in circInputList)
+                            {
+                                <FormInputBlock Id="@formInput.Id" Label="@formInput.Label"
+                                Value="@formInput.GetValue()"
+                                ValueChanged="(value) => formInput.SetValue(value)" />
+                            }
+                        </div>
+                    }
+                    <button type="submit" id="sendBtn" class="ctaBtn">Enviar</button>
+                } else
+                {
+                    <div class="invalidFormMessage">
+                        <p>Ya existen datos de medidas físicas para esa fecha</p>
+                        <p>Si quieres modificarlos, por favor, ve a '<span>Físico</span>'</p>
+                    </div>
+                }
+            </EditForm>
+        }
+        else
+        {
+            @if (inputType == 2)
+            {
+                @if (dayTimeIntakesDict?.Count > 0 && intakeDayTime != 0)
+                {
+                    <div id="alreadyAddedItems">
+                        @foreach (var (intakeDayTime, intakeData) in dayTimeIntakesDict)
+                        {
+                            if (intakeData.FoodIntake?.Count > 0)
+                            {
+                                int fDataIdx = 0;
+                                foreach (FoodData fData in intakeData.FoodIntake)
+                                {
+                                    <AddedIntakeCard 
+                                        dataObject="@fData"
+                                        dayTimeDictKey="intakeDayTime"
+                                        type="0"
+                                        elementIndex="@fDataIdx"
+                                        OnDelete="@(parameters => DeleteElementFromIntakeDict(parameters, dayTimeIntakesDict, tempNutritionalData))" />
+                                    fDataIdx++;
+                                }
+                            }
+                            if (intakeData.MealIntake?.Count > 0)
+                            {
+                                int mDataIdx = 0;
+                                foreach (MealIntake mData in intakeData.MealIntake)
+                                {
+                                    <AddedIntakeCard 
+                                        dataObject="@mData"
+                                        dayTimeDictKey="intakeDayTime"
+                                        type="1"
+                                        elementIndex="@mDataIdx"
+                                        OnDelete="@(parameters => DeleteElementFromIntakeDict(parameters, dayTimeIntakesDict, tempNutritionalData))" />
+                                    mDataIdx++;
+                                }
+                            }
+                        }
+                    </div>
+                }
+                <EditForm Model="@tempNutritionalData" 
+                    OnValidSubmit="() => HandleValidSubmit( 2, Close )"
+                        id="addFoodDataForm">
+                    <div class="basicInfoFoodData">
+                        <h3>Datos básicos</h3>
+                        <div class="inputRow">
+                            <div class="formInputBlock">
+                                <label for="inputDate">Fecha*</label>
+                                <InputDate @bind-Value="@selectedDate" class="formInput" id="inputDate" />
+                            </div>
+                            @if(validDate){
+                                <div class="formInputBlock">
+                                    <label for="inputLaunchTime">Tiempo de comida*</label>
+                                    <InputSelect @bind-Value="@intakeDayTime" class="formInput" id="inputLaunchTime">
+                                        <option disabled="@(historicalData!.NutritionalData?.DayTimeIntakes != null || dayTimeIntakesDict?.Count > 0)" value="0">Día completo</option>
+                                        <option value="1">Desayuno</option>
+                                        <option value="2">Almuerzo</option>
+                                        <option value="3">Comida</option>
+                                        <option value="4">Merienda</option>
+                                        <option value="5">Cena</option>
+                                    </InputSelect>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    @if (validDate)
+                    {
+                        @if (intakeDayTime != 0)
+                        {
+                            <div id="nutritionalDataInputs">
+                                <div class="formInputBlock">
+                                    <label for="selectedMethodToAddInput">Método de introducción de alimento*</label>
+                                    <InputSelect @bind-Value="@selectedMethodToAddNutritionalInfo" class="formInput" id="selectedMethodToAddInput">
+                                        <option value="0">Introducción manual</option>
+                                        <option value="1">Comidas guardadas</option>
+                                    </InputSelect>
+                                </div>
+                                <div class="nutritionalDataInputWrapper">
+                                    @if (selectedMethodToAddNutritionalInfo == 1) {
+                                        <div id="dropdownInputNutritionalData">
+                                            @if (UserState.Meals.Count > 0)
+                                            {
+                                                <div class="formInputBlock">
+                                                    <label for="selectedMealToAdd">Comida guardada*</label>
+                                                    <InputSelect @bind-Value="@selectedMealToAddIndex" class="formInput" id="selectedMealToAdd">
+                                                        <option value="0">Elige una comida guardada</option>
+                                                        @{
+                                                            int mealCounter = 1;
+                                                        }
+                                                        @foreach (Meal meal in UserState.Meals)
+                                                        {
+                                                            <option value="@mealCounter">@meal.Name</option>
+                                                            mealCounter++;
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="secondaryMealSelectionRow">
+                                                    <div class="formInputBlock">
+                                                        <label for="inputMealQty">Cantidad*</label>
+                                                        <InputNumber @bind-Value="@tempFoodServing.ServingQty" class="formInput" id="inputMealQty" />
+                                                    </div>
+                                                    <div class="formInputBlock">
+                                                        <label for="inputMealQtyTypeSelector">Medida*</label>
+                                                        <InputSelect @bind-Value="@tempFoodServing.ServingUnit" class="formInput" id="inputMealQtyTypeSelector">
+                                                            <option value="0">%</option>
+                                                            <option value="1">gr.</option>
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <NoDataPlaceHolder Message="la lista de comidas guardadas" />
+                                            }
+                                        </div>
+                                    } else {
+                                        <div id="manualInputNutritionalData">
+                                            <div class="formInputBlock">
+                                                <label for="inputMealName">Nombre del alimento*</label>
+                                                <InputText @bind-Value="@tempFoodData.FoodName" class="formInput" id="inputMealName" />
+                                            </div>
+                                            <div id="macrosDetailWrapper">
+                                                <h3>Macronutrientes</h3>
+                                                <div class="inputRowWrapper">
+                                                    <div class="formInputBlock">
+                                                        <label for="inputTotalCalories">Calorías del alimento (kcal.)*</label>
+                                                        <InputNumber @bind-Value="@tempFoodData.FoodCalories" class="formInput" id="inputTotalCalories" />
+                                                    </div>
+                                                    <div class="macrosRow">
+                                                        <div class="formInputBlock">
+                                                            <label for="inputCarbsGrams">Carbohid. (gr.)*</label>
+                                                            <InputNumber @bind-Value="@tempFoodData.FoodMacros.Carbs" class="formInput" id="inputCarbsGrams" />
+                                                        </div>
+                                                        <div class="formInputBlock">
+                                                            <label for="inputProtsGrams">Proteínas (gr.)*</label>
+                                                            <InputNumber @bind-Value="@tempFoodData.FoodMacros.Prots" class="formInput" id="inputProtsGrams" />
+                                                        </div>
+                                                        <div class="formInputBlock">
+                                                            <label for="inputFatsGrams">Grasas (gr.)*</label>
+                                                            <InputNumber @bind-Value="@tempFoodData.FoodMacros.Fats" class="formInput" id="inputFatsGrams" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <button type="button" id="addFoodBtn" class="ctaBtn" @onclick="AddNewFood">Agregar alimento</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="nutritionalDataInputs">
+                                <div class="nutritionalDataInputWrapper">
+                                    <div id="manualInputNutritionalData">
+                                        <div id="macrosDetailWrapper">
+                                            <h3>Macronutrientes</h3>
+                                            <div class="inputRowWrapper">
+                                                <div class="formInputBlock">
+                                                    <label for="inputTotalCalories">Calorías del día (kcal.)*</label>
+                                                    <InputNumber @bind-Value="@tempNutritionalData.TotalNutDataCalories" class="formInput" id="inputTotalCalories" />
+                                                </div>
+                                                <div class="macrosRow">
+                                                    <div class="formInputBlock">
+                                                        <label for="inputCarbsGrams">Carbohid. (gr.)*</label>
+                                                        <InputNumber @bind-Value="@tempNutritionalData.TotalNutDataMacros.Carbs" class="formInput" id="inputCarbsGrams" />
+                                                    </div>
+                                                    <div class="formInputBlock">
+                                                        <label for="inputProtsGrams">Proteínas (gr.)*</label>
+                                                        <InputNumber @bind-Value="@tempNutritionalData.TotalNutDataMacros.Prots" class="formInput" id="inputProtsGrams" />
+                                                    </div>
+                                                    <div class="formInputBlock">
+                                                        <label for="inputFatsGrams">Grasas (gr.)*</label>
+                                                        <InputNumber @bind-Value="@tempNutritionalData.TotalNutDataMacros.Fats" class="formInput" id="inputFatsGrams" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <button type="submit" id="sendMealFormBtn" class="ctaBtn"
+                                disabled="@(
+                                    (intakeDayTime == 0 && dayTimeIntakesDict?.Count != 0 && tempNutritionalData.TotalNutDataCalories == 0) || 
+                                    (intakeDayTime != 0 && tempNutritionalData.TotalNutDataCalories != 0 && dayTimeIntakesDict?.Count == 0)
+                                )">Guardar comida</button>
+                    } else
+                    {
+                        <div class="invalidFormMessage">
+                            <p>Ya existen datos de alimentación para esa fecha</p>
+                            <p>Si quieres modificarlos, por favor, ve a '<span>Alimentación</span>'</p>
+                        </div>
+                    }
+                </EditForm>
+            } else if(inputType == 3)
+            {
+                <EditForm Model="@tempMeal" OnValidSubmit="() => HandleValidSubmit( 3, Close )" id="addMealDataForm">
+                    <div class="basicInfoMealData">
+                        <h3>Datos básicos</h3>
+                        <div class="inputRow">
+                            <div class="formInputBlock">
+                                <label for="inputMealName">Nombre de la comida*</label>
+                                <InputText @bind-Value="@tempMeal.Name" class="formInput" id="inputMealName" />
+                            </div>                                
+                            <div class="formInputBlock">
+                                <label for="inputMealTotalWeight">Peso de la comida(gr.)*</label>
+                                <InputNumber @bind-Value="@tempMeal.TotalWeight" class="formInput" id="inputMealTotalWeight" />
+                            </div>
+                        </div>
+                        </div>
+                    <div class="mealMacrosInputs">
+                        <h3>Macronutrientes</h3>
+                        <div class="formInputBlock">
+                            <label for="inputMealTotalCalories">Calorías de la comida(kcal.)*</label>
+                            <InputNumber @bind-Value="@tempMeal.TotalCalories" class="formInput" id="inputMealTotalCalories" />
+                        </div>
+                            <div class="rowInputs">
+                            <div class="formInputBlock">
+                                <label for="inputMealProts">Proteínas de la comida(gr.)*</label>
+                                <InputNumber @bind-Value="@tempMeal.TotalMealMacros.Prots" class="formInput" id="inputMealProts" />
+                            </div>
+                            <div class="formInputBlock">
+                                <label for="inputMealCarbs">Carbohidratos de la comida(gr.)*</label>
+                                <InputNumber @bind-Value="@tempMeal.TotalMealMacros.Carbs" class="formInput" id="inputMealCarbs" />
+                            </div>
+                            <div class="formInputBlock">
+                                <label for="inputMealFats">Grasas de la comida(gr.)*</label>
+                                <InputNumber @bind-Value="@tempMeal.TotalMealMacros.Fats" class="formInput" id="inputMealFats" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="addMealBtn" class="ctaBtn">Agregar nueva comida</button>
+                </EditForm>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    /// Funcionamiento del modal ----------------------------------------------------------------- //
+    private bool IsVisible { get; set; }
+    private ElementReference ModalElement;
+    private string ModalClass => IsVisible ? "fade-in" : "";
+
+    public async Task ShowAsync(int inputType, int? mealTimeDate, DateTime? entryDateTime)
+    {
+        this.intakeDayTime = mealTimeDate ?? 0;
+        this.inputType = inputType;
+
+        // Para la validación de fecha
+        (usedPhysicalDates, usedNutritionalDates) = GenerateUsedDatesInfo(UserState.HistoricalData.ToList());
+        selectedDate = entryDateTime ?? DateTime.UtcNow;
+
+
+        IsVisible = true;
+
+        CreateData();
+
+        await InvokeAsync(StateHasChanged);
+        await ModalElement.FocusAsync();
+    }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        ModalService.OnShow += ShowAsync;
+        ModalService.OnClose += Close;
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Ha de ejecutarse 2 veces
+        // 1. aquí, para generar datos para poder cargar el componente
+        // 2. en ShowAsync, para generar los datos correctos
+        CreateData(); 
+    }
+
+    private void CreateData()
+    {
+        historicalData = CreateOrSelectHistoricalData(selectedDate);
+
+        if (inputType == 0 || inputType == 1)
+        {
+            // En este supuesto siempre serán datos nuevos, y que de lo contrario se bloquea el modal y no deja interactuar
+            historicalData.PhysicalData = Utils.NewPhysicalData(inputType); // Para la creación/reset de datos históricos
+            tempPhysicalData = Utils.NewPhysicalData(inputType); // Para la creación/reset de datos históricos
+
+            if (inputType == 1)
+            {
+                methodToFormInputs = Utils.NewFatInputData(tempPhysicalData); // Para la creación/reset del formulario de medidas de grasa corporal
+                circInputList = Utils.NewCircInputList(tempPhysicalData); // Para la creación/reset de campos de circunferencias
+            }
+        } else if (inputType == 2)
+        {
+            // Para la adición de ingestas
+            tempNutritionalData = CreateOrSelectNutritionalData();
+            dayTimeIntakesDict = CreateOrSelectIntakeInfo();
+
+            tempFoodData = ResetFoodData();
+            tempFoodServing = new();
+        } else if (inputType == 3)
+        {
+            // Para la adición de comidas completas
+            tempMeal = new()
+            {
+                Name = "",
+                TotalCalories = 0,
+                TotalMealMacros = new FoodMacros()
+                {
+                    Carbs = 0,
+                    Prots = 0,
+                    Fats = 0
+                },
+                TotalWeight = 0,
+            };
+        }
+    }
+
+    public void Dispose()
+    {
+        ModalService.OnShow -= ShowAsync;
+        ModalService.OnClose -= Close;
+    }
+}

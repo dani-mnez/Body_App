@@ -1,0 +1,17 @@
+﻿<div class="infoNeedingData">
+    <p>
+        <span class="material-symbols-outlined">
+            info
+        </span>Dato necesario para:
+    </p>
+    <ul>
+        @foreach(string data in NeededData)
+        {
+            <li>@data</li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter] public List<string> NeededData { get; set; }
+}

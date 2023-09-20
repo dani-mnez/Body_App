@@ -1,0 +1,85 @@
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.AssemblyReference.cache
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.AssemblyInfoInputs.cache
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.AssemblyInfo.cs
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.CoreCompileInputs.cache
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\appsettings.Development.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\appsettings.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.exe
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.deps.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.runtimeconfig.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.pdb
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\AWSSDK.Core.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\AWSSDK.SecurityToken.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\DnsClient.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Bson.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Driver.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Driver.Core.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Libmongocrypt.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\SharpCompress.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\Snappier.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\ZstdSharp.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\linux\native\libmongocrypt.so
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\osx\native\libmongocrypt.dylib
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\win\native\mongocrypt.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.API ASP.NET Core Body App.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.build.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.buildTransitive.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.pack.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.build.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.development.json
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\scopedcss\bundle\API ASP.NET Core Body App.styles.css
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.CopyComplete
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\refint\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.pdb
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.genruntimeconfig.cache
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\obj\Debug\net7.0\ref\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Repos\API ASP.NET Core Body App\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\appsettings.Development.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\appsettings.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.exe
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.deps.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.runtimeconfig.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\API ASP.NET Core Body App.pdb
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\AWSSDK.Core.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\AWSSDK.SecurityToken.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\DnsClient.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Bson.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Driver.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Driver.Core.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\MongoDB.Libmongocrypt.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\SharpCompress.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\Snappier.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\ZstdSharp.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\linux\native\libmongocrypt.so
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\osx\native\libmongocrypt.dylib
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\runtimes\win\native\mongocrypt.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.AssemblyReference.cache
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.AssemblyInfoInputs.cache
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.AssemblyInfo.cs
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.CoreCompileInputs.cache
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.API ASP.NET Core Body App.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.build.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets\msbuild.buildTransitive.API ASP.NET Core Body App.props
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.pack.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.build.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\staticwebassets.development.json
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\scopedcss\bundle\API ASP.NET Core Body App.styles.css
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.csproj.CopyComplete
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\refint\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.pdb
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\API ASP.NET Core Body App.genruntimeconfig.cache
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\obj\Debug\net7.0\ref\API ASP.NET Core Body App.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\dani_\Desktop\Body_App\API ASP.NET Core Body App\bin\Debug\net7.0\Newtonsoft.Json.Bson.dll

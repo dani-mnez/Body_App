@@ -1,0 +1,24 @@
+.noDataPlaceHolder[b-lcbn34b4ul] {
+    min-height: 50px;
+    border: 1px dashed gray;
+    border-radius: var(--border-large);
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.noDataMainMessage[b-lcbn34b4ul]
+{
+    font-size: 0.9rem;
+    font-variation-settings: 'wght' 400;
+    margin: 0;
+    text-align: center;
+}
+
+.noDataMainMessage span[b-lcbn34b4ul]
+{
+    color: black;
+    font-variation-settings: 'wght' 700;
+}

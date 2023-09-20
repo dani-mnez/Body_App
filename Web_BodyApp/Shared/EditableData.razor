@@ -1,0 +1,168 @@
+﻿@using System.Text.Json;
+@using System.Text;
+@using KellermanSoftware.CompareNetObjects;
+@using System.Reflection;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.DTOs;
+@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject UserStateService UserState
+@inject HttpClient Http
+@inject RequestService Request
+
+<div id="@Id" class="editRow">
+    <img class="editRowImg" src="@ImagePath"/>
+    <div class="textualInfo">
+        <p>@Text</p>
+        @if (!ToEdit)
+        {
+            <span>@ViewValue</span>
+            @if (Units != null)
+            {
+                <span>@Units</span>
+            }
+        } else
+        {
+            @ChildContent
+        }
+    </div>
+    @if (IsButton) {
+        <div class="ctaBtns @(ToEdit ? "twoBtns" : "oneBtn")">
+            @if (!ToEdit)
+            {
+                <button class="editRowBtn" @onclick="StartEdit"><span>Editar</span></button>
+            } else
+            {
+                <button class="editRowBtn" @onclick="ApplyEdit">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z" /></svg>
+                </button>
+                <button class="editRowBtn" @onclick="CloseEdit">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" /></svg>
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Text { get; set; }
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public string? ViewValue { get; set; }
+    [Parameter] public string Key { get; set; }
+    [Parameter] public bool IsButton { get; set; } = true;
+    [Parameter] public string ImagePath { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Units { get; set; } = null;
+
+    [Parameter] public EventCallback onRequestRefresh { get; set; }
+
+    private PropertyInfo? valuePropertyInfo { get; set; } = null;
+    private bool ToEdit { get; set; }  = false;
+
+    static string[] bodyTypes = new string[] { "Ectomorfo", "Mesomorfo", "Endomorfo" };
+    static string[] goals = new string[] { "Mantenimiento", "Pérdida de grasa" };
+    static string[] fatLooseRate = new string[] { "Lento (10-15%)", "Medio (15-25%)", "Rápido (>25%)" };
+    static string[] activityLevel = new string[] { "Poca (1-3 veces/sem.)", "Moderada (3-5 veces/sem.)", "Intensa (>5 veces/sem.)" };
+
+    string[] intProps = new string[] { "Height", "BodyType", "ActivityLevel", "Goal", "Sex", "FatLooseRate" };
+    string[] stringProps = new string[] { "Name", "Mail", "Password" };
+
+    private static readonly Dictionary<string, Func<string, string>> mappers = new Dictionary<string, Func<string, string>>
+    {
+        { "Sex", tempValue => tempValue == "0" ? "Mujer" : "Hombre" },
+        { "BodyType", tempValue => bodyTypes[int.Parse(tempValue)] },
+        { "FatLooseRate", tempValue => fatLooseRate[int.Parse(tempValue)] },
+        { "ActivityLevel", tempValue => activityLevel[int.Parse(tempValue)] },
+        { "Goal", tempValue => goals[int.Parse(tempValue)] },
+    };
+
+    protected override void OnParametersSet()
+    {
+        ViewValue = GetViewValue();
+    }
+
+    private string GetViewValue()
+    {
+        Dictionary<string, Func<string, string>> mappers = new Dictionary<string, Func<string, string>>
+        {
+            { "Sex", tempValue => tempValue == "0" ? "Mujer" : "Hombre" },
+            { "BodyType", tempValue => bodyTypes[int.Parse(tempValue)] },
+            { "FatLooseRate", tempValue => fatLooseRate[int.Parse(tempValue)] },
+            { "ActivityLevel", tempValue => activityLevel[int.Parse(tempValue)] },
+            { "Goal", tempValue => goals[int.Parse(tempValue)] },
+            { "BirthDate", tempValue => DateTime.Parse(tempValue).ToString("dd/MM/yyyy") }
+        };
+
+        if (Key != null && ViewValue == null)
+        {
+            valuePropertyInfo = UserState.UserData!.GetType().GetProperty(Key);
+            var tempValue = GetValueFromKey();
+
+            return (mappers.TryGetValue(Key, out var mapper)) ? mapper(tempValue) : tempValue;
+        }
+        return ViewValue ?? string.Empty;
+    }
+
+    private string GetValueFromKey()
+    {
+        if (valuePropertyInfo != null)
+        {
+            var value = valuePropertyInfo.GetValue(UserState.UserData);
+            return value?.ToString() ?? string.Empty;
+        }
+        return string.Empty;
+    }
+
+    private void StartEdit() => ToEdit = true;
+    private void CloseEdit() => ToEdit = false; 
+
+    private async Task ApplyEdit()
+    {
+        ToEdit = false;
+        await EditData();
+    }
+
+    protected async Task EditData()
+    {
+        UserDTO userToEdit = UserState.UserData.GetCopy();
+        var property = userToEdit.GetType().GetProperty(Key!);
+
+        if (property != null)
+        {
+            ViewValue = (mappers.Keys.Contains(Key))
+                ? mappers[Key!](Value!)
+                : Value!.ToString();
+
+            object convertedValue = property;
+
+            if (intProps.Contains(Key) && int.TryParse(Value, out var intValue))
+            {
+                convertedValue = intValue;
+            }
+            else if (property.PropertyType == typeof(DateTime) && DateTime.TryParse(Value, out var dateTimeValue))
+            {
+                convertedValue = dateTimeValue;
+            } else
+            {
+                convertedValue = Value!;
+            }
+
+            property.SetValue(userToEdit, convertedValue);
+
+            ComparisonResult comparisonResult = Request.CompareObjects<UserDTO>(UserState.UserData, userToEdit);
+            comparisonResult.Differences.RemoveAll(x => x.PropertyName != Key);
+
+            HttpResponseMessage respuestaPatch = await Request.ApplyChangesWithPatch($"User/{UserState.UserData.Id}", comparisonResult.Differences);
+
+            UserState.UserData.GetType().GetProperty(Key!)!.SetValue(UserState.UserData, convertedValue);
+            StateHasChanged();
+            await RefreshParent();
+        }
+    }
+
+    private async Task RefreshParent()
+    {
+        await onRequestRefresh.InvokeAsync();
+    }
+}

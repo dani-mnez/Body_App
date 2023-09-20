@@ -1,0 +1,261 @@
+#inputModal[b-pj9gacceub] {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+h3[b-pj9gacceub] {
+    margin: 0;
+    width: 100%;
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 400;
+}
+
+#inputModal.fade-in[b-pj9gacceub] {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content.fade-in[b-pj9gacceub] {
+    visibility: 1;
+    transform: translateY(0);
+}
+
+#modalFirstLine[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    padding: 2rem;
+    width: 80%;
+    max-width: 700px;
+    border-radius: var(--border-large);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    visibility: 0;
+    transform: translateY(10px);
+    transition: transform 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+.firstLineInputs[b-pj9gacceub] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.firstLineInputs .formInputBlock[b-pj9gacceub] {
+    width: 100%;
+}
+
+#addWeightDataForm[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#inputBodyFatMeasures[b-pj9gacceub], #circunferencesInputs[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+    #inputBodyFatMeasures .formInputBlock[b-pj9gacceub],
+    #circunferencesInputs .formInputBlock[b-pj9gacceub] {
+        width: calc(50% - 10px);
+    }
+
+#circunferencesInputs[b-pj9gacceub] {
+    padding-top: 10px;
+    border-top: 1px solid black;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+#bodyFatInputs[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid black;
+    margin-bottom: 10px;
+}
+
+#closeBtn[b-pj9gacceub] {
+    background-color: transparent;
+    place-self: end;
+    border: none;
+    cursor: pointer;
+}
+
+[b-pj9gacceub] #addFoodDataForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#macrosDetailWrapper[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+}
+
+#macrosDetailWrapper h3[b-pj9gacceub] {
+    margin-bottom: 10px;
+}
+
+.inputRowWrapper[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+}
+
+.inputRowWrapper[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+}
+
+.macrosRow[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+}
+
+.macrosRow .formInputBlock[b-pj9gacceub] {
+    width: calc((100% - 20px)/3);
+}
+
+.basicInfoFoodData[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.basicInfoFoodData .inputRow[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+}
+
+.basicInfoFoodData .formInputBlock[b-pj9gacceub] {
+    width: 100%;
+}
+
+.nutritionalDataInputWrapper[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+#nutritionalDataInputs[b-pj9gacceub] {
+    padding: 10px;
+    background-color: var(--color-bkg-lightgrey);
+    border-radius: var(--border-large);
+}
+
+#nutritionalDataInputs[b-pj9gacceub]  .formInput {
+    background-color: var(--color-bkg-grey);
+}
+
+#manualInputNutritionalData[b-pj9gacceub] {
+    width: 100%;
+}
+
+.horizontalSeparator[b-pj9gacceub] {
+    margin: 0;
+    color: grey;
+    display: flex;
+    justify-content: space-between;
+}
+
+.horizontalSeparator[b-pj9gacceub]::after {
+    content: '';
+    display: inline-block;
+    width: 45%;
+    height: 1px;
+    background-color: grey;
+    margin: auto 0;
+}
+
+.horizontalSeparator[b-pj9gacceub]::before {
+    content: '';
+    display: inline-block;
+    width: 45%;
+    height: 1px;
+    background-color: grey;
+    margin: auto 0;
+}
+
+#dropdownInputNutritionalData[b-pj9gacceub] {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#alreadyAddedItems[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Mensaje de error */
+.invalidFormMessage[b-pj9gacceub] {
+    background-color: var(--btn-red-border);
+    color: var(--btn-red-bkg);
+    padding: 10px;
+    text-align: center;
+    border-radius: var(--border-large);
+    font-variation-settings: 'wght' 400;
+}
+
+.invalidFormMessage span[b-pj9gacceub] {
+    font-variation-settings: 'wght' 800;
+}
+
+/* Para el modal de Meal */
+.basicInfoMealData[b-pj9gacceub], .inputRow[b-pj9gacceub], .mealMacrosInputs[b-pj9gacceub] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mealMacrosInputs .rowInputs[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+}
+
+.mealMacrosInputs .rowInputs .formInputBlock[b-pj9gacceub] {
+    width: 100%;
+}
+
+[b-pj9gacceub] #addMealDataForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.secondaryMealSelectionRow[b-pj9gacceub] {
+    display: flex;
+    gap: 10px;
+}
+
+.secondaryMealSelectionRow > *[b-pj9gacceub]{
+    width: 100%;
+}

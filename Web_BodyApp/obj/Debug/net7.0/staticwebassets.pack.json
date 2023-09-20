@@ -1,0 +1,205 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\obj\\Debug\\net7.0\\scopedcss\\projectbundle\\Web_BodyApp.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Web_BodyApp.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\fonts\\NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf",
+      "PackagePath": "staticwebassets\\fonts\\NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\fonts\\Rowdies-Bold.ttf",
+      "PackagePath": "staticwebassets\\fonts\\Rowdies-Bold.ttf"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\fonts\\Rowdies-Light.ttf",
+      "PackagePath": "staticwebassets\\fonts\\Rowdies-Light.ttf"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\fonts\\Rowdies-Regular.ttf",
+      "PackagePath": "staticwebassets\\fonts\\Rowdies-Regular.ttf"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\actLevel.svg",
+      "PackagePath": "staticwebassets\\icons\\actLevel.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\age.svg",
+      "PackagePath": "staticwebassets\\icons\\age.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\bodyType.svg",
+      "PackagePath": "staticwebassets\\icons\\bodyType.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\close.svg",
+      "PackagePath": "staticwebassets\\icons\\close.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\del.svg",
+      "PackagePath": "staticwebassets\\icons\\del.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\fatLooseRate.svg",
+      "PackagePath": "staticwebassets\\icons\\fatLooseRate.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\goal.svg",
+      "PackagePath": "staticwebassets\\icons\\goal.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\height.svg",
+      "PackagePath": "staticwebassets\\icons\\height.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\hist.svg",
+      "PackagePath": "staticwebassets\\icons\\hist.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\mail.svg",
+      "PackagePath": "staticwebassets\\icons\\mail.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\name.svg",
+      "PackagePath": "staticwebassets\\icons\\name.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\ok.svg",
+      "PackagePath": "staticwebassets\\icons\\ok.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\pwd.svg",
+      "PackagePath": "staticwebassets\\icons\\pwd.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\sex.svg",
+      "PackagePath": "staticwebassets\\icons\\sex.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\icons\\weight.svg",
+      "PackagePath": "staticwebassets\\icons\\weight.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\ectoF.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\ectoF.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\ectoM.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\ectoM.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\endoF.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\endoF.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\endoM.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\endoM.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\mesoF.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\mesoF.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\bodyTypes\\mesoM.webp",
+      "PackagePath": "staticwebassets\\imgs\\bodyTypes\\mesoM.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f12.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f12.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f15.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f15.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f20.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f20.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f25.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f25.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f30.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f30.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f35.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f35.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f40.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f40.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\female\\f45.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\female\\f45.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m10.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m10.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m15.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m15.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m20.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m20.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m25.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m25.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m30.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m30.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m35.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m35.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m40.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m40.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\fatPercBodies\\male\\m8.webp",
+      "PackagePath": "staticwebassets\\imgs\\fatPercBodies\\male\\m8.webp"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\imgs\\logo_bodyapp.svg",
+      "PackagePath": "staticwebassets\\imgs\\logo_bodyapp.svg"
+    },
+    {
+      "Id": "C:\\Users\\dani_\\Desktop\\Body_App\\Web_BodyApp\\wwwroot\\plotly-interop.js",
+      "PackagePath": "staticwebassets\\plotly-interop.js"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.Web_BodyApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.Web_BodyApp.props",
+      "PackagePath": "build\\Web_BodyApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.Web_BodyApp.props",
+      "PackagePath": "buildMultiTargeting\\Web_BodyApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.Web_BodyApp.props",
+      "PackagePath": "buildTransitive\\Web_BodyApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

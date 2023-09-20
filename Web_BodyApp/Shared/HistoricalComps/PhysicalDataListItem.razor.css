@@ -1,0 +1,133 @@
+﻿.ctaBtns {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    margin: 10px;
+}
+
+    .ctaBtns button {
+        width: 100%;
+        border: none;
+        background-color: var(--color-bkg-grey);
+        cursor: pointer;
+        padding: 0;
+        border-radius: var(--border-medium);
+        height: 25px;
+        transition: border-color .2s ease-in-out,
+            color .2s ease-in-out,
+            background-color .2s ease-in-out;
+    }
+
+        .ctaBtns button span {
+            margin: 5px 10px;
+        }
+
+        .ctaBtns button:first-of-type:hover {
+            color: var(--btn-yellow-bkg);
+            background-color: var(--btn-yellow-border);
+        }
+
+        .ctaBtns button:last-of-type:hover {
+            color: var(--btn-red-bkg);
+            background-color: var(--btn-red-border);
+        }
+
+.circWrapper,
+.bodyFatMeasuresWrapper,
+.weightCompWrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 10px 15px;
+    margin: 10px 0;
+}
+
+    .fatMuscPercWrapper {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* .circWrapper ::deep .dataDiv,
+    .bodyFatMeasuresWrapper ::deep .dataDiv,
+    .weightCompWrapper ::deep .dataDiv {
+        flex: 48%;
+    }*/
+    .circWrapper:has(p),
+    .bodyFatMeasuresWrapper:has(p),
+    .fatMuscPercWrapper:has(p),
+    .weightCompWrapper:has(p) {
+        justify-content: center;
+    }
+
+    .bodyFatMethodCell, .weightCell, .imcCell, .dateCell {
+    text-align: center;
+}
+
+        .bodyFatMethodCell p,
+        .weightCell p,
+        .imcCell p,
+        .dateCell p {
+            display: inline-block;
+            margin: 5px;
+        }
+
+td > p {
+    text-align: center;
+}
+
+.bodyFatMethodWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.editMode button {
+    border: none;
+    background-color: var(--color-bkg-grey);
+    color: black;
+}
+
+.editMode button:first-of-type:hover {
+    color: var(--btn-green-bkg);
+    background-color: var(--btn-green-border);
+}
+
+.editMode button:last-of-type:hover {
+    color: var(--btn-red-bkg);
+    background-color: var(--btn-red-border);
+}
+
+::deep .formInputBlock {
+    align-items: flex-start;
+}
+
+::deep .formInputBlock input {
+    max-width: 80px;
+}
+
+.dateCell ::deep input {
+    max-width: 100%;
+}
+
+.dateCell ::deep .formInputBlock {
+    width: fit-content;
+    margin: auto;
+}
+
+.circunferenceInputWrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 10px 15px;
+    margin: 10px 0;
+}
+
+.calcInfoText {
+    font-size: 14px;
+    color: dimgrey;
+}
+
+::deep .formInput {
+    background-color: var(--color-bkg-grey);
+}

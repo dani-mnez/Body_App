@@ -1,0 +1,65 @@
+﻿.mealDataInfoCard {
+    padding: 10px;
+    background-color: var(--color-bkg-dark-meal);
+    border-radius: var(--border-medium);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mealDataInfoCard p {
+    margin: 0;
+}
+
+.intakeDetailBasicInfo {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.intakeDetailBasicInfo.editMode .formInputBlock {
+    width: calc((100% - 10px)/2);
+}
+
+.intakeMacrosWrapper {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.intakeMacrosWrapper:not(.editMode) ::deep .formInput {
+    width: 100%;
+}
+
+.intakeMacrosWrapper.editMode .formInputBlock {
+    width: calc((100% - 20px)/3);
+}
+
+.intakeDetailName {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    color: gray;
+}
+
+.mealDataInfoCard p:not(.intakeDetail) span {
+    font-variation-settings: 'wght' 700;
+}
+
+.intakeDetailCtaBtns {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+    .intakeDetailCtaBtns button {
+        background-color: var(--color-bkg-slightlydarkgrey);
+    }
+
+.mealQty {
+    text-align: center;
+}
+
+.infoCtaBtn {
+    padding: 5px 15px;
+}

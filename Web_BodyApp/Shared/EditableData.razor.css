@@ -1,0 +1,82 @@
+﻿.editRow {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.editRowImg {
+    height: 30px;
+}
+
+.textualInfo p {
+    margin: 0;
+    font-size: .85rem;
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    color: rgb(88, 88, 88);
+}
+
+.textualInfo span:first-of-type {
+    font-variation-settings: 'wght' 650;
+    font-size: 1.1rem;
+}
+
+.textualInfo ::deep input,
+.textualInfo ::deep select {
+    border: none;
+    border-radius: var(--border-medium);
+    font-size: 14px;
+    padding: 2px 5px;
+    font-family: 'Nunito', sans-serif;
+    font-variation-settings: 'wght' 650;
+}
+
+.ctaBtns {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    align-self: end;
+    margin-left: auto;
+}
+
+button {
+    border: none;
+    background-color: white;
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--border-medium);
+    height: 24px;
+    transition: border-color .2s ease-in-out, color .2s ease-in-out, background-color .2s ease-in-out;
+}
+
+.oneBtn button:hover {
+    color: var(--btn-yellow-bkg);
+    background-color: var(--btn-yellow-border);
+}
+
+.oneBtn button span {
+    padding: 0 5px;
+}
+
+.twoBtns button:first-child:hover {
+    border-color: var(--btn-green-bkg);
+    background-color: var(--btn-green-border);
+}
+
+    .twoBtns button:first-child:hover svg {
+        fill: var(--btn-green-bkg);
+    }
+
+.twoBtns button:last-child:hover {
+    border-color: var(--btn-red-bkg);
+    background-color: var(--btn-red-border);
+}
+
+    .twoBtns button:last-child:hover svg {
+        fill: var(--btn-red-bkg);
+    }
+
+.twoBtns button svg {
+    transition: fill .2s ease-in-out;
+    height: 100%;
+}

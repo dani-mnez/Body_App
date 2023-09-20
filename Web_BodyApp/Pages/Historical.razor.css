@@ -1,0 +1,36 @@
+﻿table {
+    width: 100%;
+    border-spacing: 0 10px;
+}
+
+th {
+    font-family: 'Rowdies';
+    font-weight: 300;
+}
+
+table tbody ::deep tr td {
+    width: fit-content;
+}
+
+table thead {
+    border-bottom: 1px solid black;
+}
+
+    table tbody ::deep tr td:first-of-type {
+        border-radius: var(--border-large) 0 0 var(--border-large);
+    }
+
+    table tbody ::deep tr td:last-of-type {
+        border-radius: 0 var(--border-large) var(--border-large) 0;
+    }
+
+    table tbody ::deep tr:nth-child(odd) td {
+        background-color: var(--color-bkg-lightgrey);
+    }
+
+
+#pageContent {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}

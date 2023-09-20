@@ -1,0 +1,323 @@
+﻿@page "/historical"
+@using Web_BodyApp.Data.Models;
+@using Plotly.Blazor.LayoutLib;
+@using Plotly.Blazor.Traces.ScatterLib;
+@using Web_BodyApp.Data;
+@using System.ComponentModel;
+@using Web_BodyApp.Data.ServiceClasses;
+@using Web_BodyApp.Shared.HistoricalComps;
+@inject UserStateService UserState
+@inject ReloadService Reload
+
+<PageTitle>BODYAPP | Físico</PageTitle>
+
+<h1 class="pageTitle">Tu evolución física</h1>
+
+<div id="pageContent">
+    @if(UserState.HistoricalData.Count == 0)
+    {
+        <div class="dataBlock">
+            <p>Aún no hay datos temporales</p>
+            <p>Por favor, introdúcelos desde los botones del menú principal</p>
+        </div>
+    } else
+    {
+        <div class="dataBlock">
+            <h2 class="subTitle">Evolución de tu peso</h2>
+            <PlotlyChart @bind-Data="graphWeightData" @bind-Layout="graphWeightLayout" @bind-Config="graphWeightConfig" @ref="weightChart"/>
+        </div>
+
+        @if(UserState.HistoricalData!.Any(hd => hd.PhysicalData?.BodyMeasure?.Circunferences != null))
+        {
+            <div class="dataBlock">
+                <h2 class="subTitle">Evolución de tus circunferencias</h2>
+                <PlotlyChart @bind-Data="graphCircunferenceData" @bind-Layout="graphCircunferenceLayout" @bind-Config="graphWeightConfig" @ref="circunferenceChart" />
+            </div>
+        } else
+        {
+            <p>Aún no hay datos de tus circunferencias</p>
+        }
+
+        <div class="dataBlock">
+            <h2 class="subTitle">Tabla de datos</h2>
+            <table class="dataTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Peso</th>
+                        <th>Circunferencias</th>
+                        <th>Método</th>
+                        <th>Medidas grasa corporal</th>
+                        <th>Composición corporal (%)</th>
+                        <th>Composición corporal (kg)</th>
+                        <th>IMC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (HistoricalData? entry in orderedHistoricalDataWithPhysicalData)
+                    {
+                        <PhysicalDataListItem entry="@entry" onRequestRefresh="Refresh"/>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    List<HistoricalData> orderedHistoricalDataWithPhysicalData;
+    // OBTECIÓN DE DATOS PARA GRÁFICOS
+    protected override void OnInitialized()
+    {
+        UserState.PropertyChanged += UserState_PropertyChanged!;
+
+        if (UserState.HistoricalData.Count > 0)
+        {
+            GenerateGraphsBase();
+            UpdateGraphsData();        
+        }
+
+        Reload.OnReloadAsync += Refresh;
+    }
+
+    public void Dispose()
+    {
+        UserState.PropertyChanged -= UserState_PropertyChanged!;
+        Reload.OnReloadAsync -= Refresh;
+    }
+
+    private async Task Refresh()
+    {
+        UpdateGraphsData();
+        await weightChart.Update();
+        await circunferenceChart.Update();
+        StateHasChanged();
+    }
+
+    private void UserState_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(UserState.HistoricalData))
+        {
+            UpdateGraphsData();
+        }
+    }
+
+    // GRÁFICO DE PESO
+    PlotlyChart weightChart;
+    Config graphWeightConfig;
+    Layout graphWeightLayout;
+    IList<ITrace> graphWeightData;
+
+    // GRÁFICO DE CIRCUNFERENCIAS
+    PlotlyChart circunferenceChart;
+    Layout graphCircunferenceLayout;
+    IList<ITrace> graphCircunferenceData;
+
+    private void GenerateGraphsBase()
+    {
+        // Gráfico de PESO
+        weightChart = new();
+        graphWeightConfig = new() { Responsive = true };
+        graphWeightLayout = new()
+        {
+            YAxis = new List<YAxis> {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title { Text = "Peso (kg)" },
+                    ShowGrid = false
+                }
+            },
+            XAxis = new List<XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title { Text = "Fecha" },
+                    Type = Plotly.Blazor.LayoutLib.XAxisLib.TypeEnum.Date,
+                    AutoRange = Plotly.Blazor.LayoutLib.XAxisLib.AutoRangeEnum.True,
+                    TickFormat = "%d/%m/%Y",
+                    ShowGrid = false
+                }
+            }
+        };
+        graphWeightData = new List<ITrace>()
+        {
+            // Para los tipos de masa que componen el peso total
+            CreateScatter("Bone", "Hueso", "grey"),
+            CreateScatter("Residual", "Residual", "#2CA02C"),
+            CreateScatter("Fat", "Grasa", "#F0C300"),
+            CreateScatter("Muscle", "Músculo", "#D62728"),
+            // Peso TOTAL
+            CreateScatter("Total", "Peso total", "black", true)
+        };
+
+        // Gráfico de CIRCUNFERENCIAS
+        circunferenceChart = new();
+        graphCircunferenceLayout = new Layout()
+            {
+                YAxis = new List<YAxis> {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title { Text = "Circunferencia (cm)" },
+                    ShowGrid = false
+                }
+            },
+                XAxis = new List<XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title { Text = "Fecha" },
+                    Type = Plotly.Blazor.LayoutLib.XAxisLib.TypeEnum.Date,
+                    AutoRange = Plotly.Blazor.LayoutLib.XAxisLib.AutoRangeEnum.True,
+                    TickFormat = "%d/%m/%Y",
+                    ShowGrid = false
+                }
+            }
+            };
+        graphCircunferenceData = new List<ITrace>()
+        {
+            CreateScatter("BI", "Bícep (I)"),
+            CreateScatter("BD", "Bícep (D)"),
+            CreateScatter("Cin", "Cintura"),
+            CreateScatter("Cad", "Cadera"),
+            CreateScatter("MI", "Muslo (I)"),
+            CreateScatter("MD", "Muslo (D)"),
+        };
+
+    }
+
+    private void UpdateGraphsData()
+    {
+        // Para PESOS
+        List<Scatter> scatterTraceWeights = new()
+        {
+            graphWeightData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Total")!,
+            graphWeightData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Fat")!,
+            graphWeightData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Muscle")!,
+            graphWeightData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Bone")!,
+            graphWeightData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Residual")!
+        };
+
+        if (scatterTraceWeights != null)
+        {
+            foreach (var scatterTraceWeight in scatterTraceWeights)
+            {
+                if (scatterTraceWeight != null)
+                {
+                    scatterTraceWeight.Y.Clear();
+                    scatterTraceWeight.X.Clear();
+                }
+            }
+        }
+
+        // Para CIRCUNFERENCIAS
+        List<Scatter> scatterTraceCircs = new()
+        {
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "BI")!,
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "BD")!,
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Cin")!,
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "Cad")!,
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "MI")!,
+            graphCircunferenceData.OfType<Scatter>().FirstOrDefault(x => x.UId == "MD")!
+        };
+
+        foreach (var circ in scatterTraceCircs)
+        {
+            if (circ != null)
+            {
+                circ.Y.Clear();
+                circ.X.Clear();
+            }
+        }
+
+
+        // Iterar sobre HistoricalData y extraer datos para gráficos
+        orderedHistoricalDataWithPhysicalData = UserState.HistoricalData.Where(hd => hd.PhysicalData != null).ToList();
+        foreach (var hd in orderedHistoricalDataWithPhysicalData)
+        {
+            // Para datos de PESO
+            foreach (var scatterTraceWeight in scatterTraceWeights!)
+            {
+                scatterTraceWeight.X.Add(hd.Date);
+                switch (scatterTraceWeight.UId)
+                {
+                    case "Total":
+                        scatterTraceWeight.Y.Add(hd.PhysicalData?.Weight);
+                        break;
+                    case "Fat":
+                        scatterTraceWeight.Y.Add(hd.PhysicalData?.Computed.BodyStats?.WeightComposition?.FatWeight);
+                        break;
+                    case "Muscle":
+                        scatterTraceWeight.Y.Add(hd.PhysicalData?.Computed.BodyStats?.WeightComposition?.MuscleWeight);
+                        break;
+                    case "Bone":
+                        scatterTraceWeight.Y.Add(hd.PhysicalData?.Computed.BodyStats?.WeightComposition?.BoneWeight);
+                        break;
+                    case "Residual":
+                        scatterTraceWeight.Y.Add(hd.PhysicalData?.Computed.BodyStats?.WeightComposition?.ResidualWeight);
+                        break;
+                }
+            }
+
+            // Para datos de CIRCUNFERENCIAS
+            foreach (var circ in scatterTraceCircs)
+            {
+                if (hd.PhysicalData?.BodyMeasure?.Circunferences != null) {
+                    circ.X.Add(hd.Date);
+                    switch (circ.UId)
+                    {
+                        case "BI":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.LeftBicep != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.LeftBicep);
+                            break;
+                        case "BD":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.RightBicep != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.RightBicep);
+                            break;
+                        case "Cin":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.Waist != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.Waist);
+                            break;
+                        case "Cad":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.Hip != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.Hip);
+                            break;
+                        case "MI":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.LeftThigh != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.LeftThigh);
+                            break;
+                        case "MD":
+                            if (hd.PhysicalData?.BodyMeasure?.Circunferences?.RightThigh != null)
+                                circ.Y.Add(hd.PhysicalData?.BodyMeasure.Circunferences.RightThigh);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private Scatter CreateScatter(string uid, string name, string? color = null, bool isTotal = false)
+    {
+        var scatter = new Scatter
+        {
+            UId = uid,
+            Name = name,
+            Mode = ModeFlag.Lines | ModeFlag.Markers,
+            X = new List<object>(),
+            Y = new List<object>(),
+            ConnectGaps = false
+        };
+
+        if (color != null || isTotal)
+        {
+            scatter.Line = new Line
+            {
+                Color = color ?? "black",
+                Width = isTotal ? 3 : 1
+            };
+            scatter.StackGroup = isTotal ? null : "weightComponent";
+        }
+
+        return scatter;
+    }
+
+}

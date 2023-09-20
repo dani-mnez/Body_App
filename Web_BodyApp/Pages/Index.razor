@@ -1,0 +1,303 @@
+﻿@page "/"
+@using System.Collections.ObjectModel;
+@using Web_BodyApp.Data
+@using Web_BodyApp.Data.Models
+@using Web_BodyApp.Data.Models.NutritionData
+@using System.Text
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Plotly.Blazor.LayoutLib
+@using Plotly.Blazor.Traces.ScatterLib
+@using Plotly.Blazor.LayoutLib.XAxisLib;
+@using Plotly.Blazor.LayoutLib.YAxisLib;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject UserStateService UserState
+@inject IJSRuntime JSRuntime
+@inject ReloadService Reload
+
+<PageTitle>BODYAPP | Resumen</PageTitle>
+
+<h1 class="pageTitle">Hola de nuevo, <span>@UserState.UserData!.Name</span></h1>
+
+<div id="pageContent">
+    @if(UserState.HistoricalData.Count > 0)
+    {
+        <div id="weightPlotWrapper">
+            <h2 class="subTitle">Evolución del peso</h2>
+            <PlotlyChart @bind-Data="graphData" @bind-Layout="graphLayout" @bind-Config="graphConfig" @ref="chart" />
+        </div>
+    } else
+    {
+        <NoDataPlaceHolder Message="la gráfica de la evolución del peso"/>
+    }
+
+    <div id="basicWidgets">
+        @if(fatPercentage != null)
+        {
+            <div id="fatPercRepresentationRes">
+                <h2 class="subTitle">Tu estado actual:</h2>
+                <img src="@fatPercImgSrc" />
+                <p><span>@((fatPercentage! * 100).Value.ToString("F2"))%</span> grasa corporal</p>
+            </div>
+        } else
+        {
+            <NoDataPlaceHolder Message="el porcentaje de grasa actual"/>
+        }
+
+        @if (todayHistoricalDataWithNutritionalData != null)
+        {
+            <div id="dailyMacroPercRes">
+                <h2 class="subTitle">Distribución de macros de hoy:</h2>
+                <PlotlyChart @bind-Data="dailyMacrosData" @bind-Layout="dailyMacrosLayout" @bind-Config="graphConfig" @ref="dailyMacros" />
+            </div>
+        } else
+        {
+            <NoDataPlaceHolder Message="el consumo de macros de hoy" />
+        }
+
+        @if(UserState.HistoricalData.Count > 0)
+        {
+            <div id="dailyMacroPercRes">
+                <h2 class="subTitle">Objetivo vs consumo de macros de hoy:</h2>
+                <PlotlyChart @bind-Data="dailyConsumptionData" @bind-Layout="dailyConsumptionLayout" @bind-Config="graphConfig" @ref="dailyConsumption" />
+            </div>
+        } else
+        {
+            <NoDataPlaceHolder Message="el consumo de gramos de macros de hoy" />
+        }
+    </div>
+</div>
+
+@code {
+    double? userWeight;
+    string? fatPercImgSrc;
+    double? fatPercentage;
+    HistoricalData todayHistoricalDataWithNutritionalData { get; set; }
+    List<HistoricalData> historicalDataWithPhysicalData { get; set; }
+
+    protected override void OnInitialized()
+    {
+        BaseDataCollect();
+        GraphsGeneration();
+
+        Reload.OnReloadAsync += RefreshAsync;
+    }
+
+    private void BaseDataCollect()
+    {
+        todayHistoricalDataWithNutritionalData = UserState.HistoricalData.FirstOrDefault(hd => hd.Date.Date == DateTime.Now.Date && hd.NutritionalData != null)!;
+        historicalDataWithPhysicalData = UserState.HistoricalData.Where(hd => hd.PhysicalData != null).ToList();
+
+        if (UserState.HistoricalData.Count > 0) userWeight = UserState.HistoricalData.LastOrDefault()?.PhysicalData?.Weight;
+
+        fatPercentage = UserState.HistoricalData.LastOrDefault(hd => hd.PhysicalData?.Computed?.BodyStats?.FatPerc != null)?.PhysicalData?.Computed?.BodyStats?.FatPerc;
+        fatPercImgSrc = Utils.GetFatPercSrc(
+            fatPercentage,
+            UserState.UserData!.Sex
+        );
+    }
+
+    public void Dispose()
+    {
+        Reload.OnReloadAsync -= RefreshAsync;
+    }
+
+    private async Task RefreshAsync()
+    {
+        BaseDataCollect();
+        await UpdateGraphs();
+        StateHasChanged();
+    }
+
+    private async Task UpdateGraphs()
+    {
+        GenerateGraphsData();
+        if (UserState.HistoricalData.Count > 0) {
+            await chart.Update();
+            await dailyConsumption.Update();
+        }
+        if (todayHistoricalDataWithNutritionalData != null) await dailyMacros.Update();
+    }
+
+    # region Gráficos
+    // Gráfica de peso
+    PlotlyChart chart;
+    Config graphConfig;
+    Layout graphLayout;
+    IList<ITrace> graphData;
+
+    // Gráfica de macros
+    PlotlyChart dailyMacros;
+    Layout dailyMacrosLayout;
+    IList<ITrace> dailyMacrosData;
+
+    // Gráfica de consumo
+    PlotlyChart dailyConsumption;
+    Layout dailyConsumptionLayout;
+    IList<ITrace> dailyConsumptionData;
+
+    private void GraphsGeneration()
+    {
+        GenerateBaseGraphs();
+        GenerateGraphsData();
+    }
+
+    private void GenerateBaseGraphs()
+    {
+        // Gráfico de peso
+        chart = new();
+        graphConfig = new() { Responsive = true };
+        graphLayout = new()
+        {
+            YAxis = new List<YAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title { Text = "Peso (kg)" },
+                    ShowGrid = false
+                }
+            },
+            XAxis = new List<XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title { Text = "Fecha" },
+                    Type = Plotly.Blazor.LayoutLib.XAxisLib.TypeEnum.Date,
+                    AutoRange = Plotly.Blazor.LayoutLib.XAxisLib.AutoRangeEnum.True,
+                    TickFormat = "%d/%m/%Y",
+                    ShowGrid = false
+                }
+            }
+        };
+        graphData = new List<ITrace>()
+        {
+            new Scatter
+            {
+                Name = "Peso",
+                Mode = ModeFlag.Lines | ModeFlag.Markers,
+                X = new List<object>(),
+                Y = new List<object>()
+            }
+        };
+
+        // Gráfico de macronutrientes
+        dailyMacros = new();
+        dailyMacrosLayout = new()
+        {
+            PaperBgColor = "rgba(0,0,0,0)",
+            PlotBgColor = "rgba(0,0,0,0)",
+            ShowLegend = false
+        };
+        dailyMacrosData = new List<ITrace>()
+        {
+            new Pie
+            {
+                Name = "Macros",
+                Values = new List<object>(),
+                Labels = new List<object>()
+            }
+        };
+
+        // Gráfico de consumo
+        dailyConsumption = new();
+        dailyConsumptionLayout = new()
+        {
+            PaperBgColor = "rgba(0,0,0,0)",
+            PlotBgColor = "rgba(0,0,0,0)",
+            BarMode = BarModeEnum.Overlay,
+            ShowLegend = false,
+            Margin = new Margin
+            {
+                L = 0,
+                R = 0,
+                T = 20,
+                B = 100
+            }
+        };
+        dailyConsumptionData = new List<ITrace>()
+        {
+            new Bar
+            {
+                Name = "Consumo",
+                UId = "Consumption",
+                X = new List<object> {"Proteínas", "Hidratos", "Grasas"},
+                Y = new List<object>(),
+                Opacity = new Decimal(0.5)
+            },
+            new Bar
+            {
+                Name = "Objetivo",
+                UId = "Objective",
+                X = new List<object> {"Proteínas", "Hidratos", "Grasas"},
+                Y = new List<object>()
+            }
+        };
+    }
+
+    private void GenerateGraphsData()
+    {
+
+        Scatter scatterTrace = graphData.OfType<Scatter>().FirstOrDefault();
+        if (scatterTrace != null)
+        {
+            scatterTrace.Y.Clear();
+            scatterTrace.X.Clear();
+        }
+
+        Pie pieTrace = dailyMacrosData.OfType<Pie>().FirstOrDefault();
+        if (pieTrace != null)
+        {
+            pieTrace.Values.Clear();
+            pieTrace.Labels.Clear();
+        }
+
+        List<Bar> barras = new() {
+            dailyConsumptionData.OfType<Bar>().FirstOrDefault(x => x.UId == "Objective"),
+            dailyConsumptionData.OfType<Bar>().FirstOrDefault(x => x.UId == "Consumption")
+        };
+        foreach (Bar bar in barras)
+        {
+            if (bar != null) bar.Y.Clear();
+        }
+
+        // Iterar sobre HistoricalData y extraer Weight y Date
+        foreach (HistoricalData hd in historicalDataWithPhysicalData)
+        {
+            scatterTrace!.X.Add(hd.Date);
+            scatterTrace.Y.Add(hd.PhysicalData?.Weight);
+
+        }
+
+        // Para datos de alimentación
+        HistoricalData? todayHd = UserState.HistoricalData.FirstOrDefault(hd => hd.Date.Date == DateTime.Now.Date);
+        FoodMacros? todayFoodMacros = null;
+
+        if (todayHd?.NutritionalData != null)
+        {
+            var (_, foodMacros) = Calculus.CalculateNutDataCalsMacros(todayHd.NutritionalData, UserState.Meals.ToList());
+            todayFoodMacros = foodMacros;
+        }
+
+        pieTrace.Labels.Add("Carbohidratos");
+        pieTrace!.Values.Add(todayFoodMacros?.Carbs ?? 0);
+        pieTrace.Labels.Add("Proteinas");
+        pieTrace.Values.Add(todayFoodMacros?.Prots ?? 0);
+        pieTrace.Labels.Add("Grasas");
+        pieTrace.Values.Add(todayFoodMacros?.Fats ?? 0);
+
+        // Para datos de consumo de macronutrientes
+        HistoricalData lastHistoricalDataWithPhysicalData = historicalDataWithPhysicalData.Last();
+
+        barras.Last().Y = new List<object> {
+            todayFoodMacros?.Prots ?? 0,
+            todayFoodMacros?.Carbs ?? 0,
+            todayFoodMacros?.Fats ?? 0
+        };
+        barras.First().Y = new List<object> {
+            lastHistoricalDataWithPhysicalData.PhysicalData.Computed.Nutrients.Macros.GramsProt,
+            lastHistoricalDataWithPhysicalData.PhysicalData.Computed.Nutrients.Macros.GramsCarbs,
+            lastHistoricalDataWithPhysicalData.PhysicalData.Computed.Nutrients.Macros.GramsFat
+        };
+    }
+    #endregion
+}

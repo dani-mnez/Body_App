@@ -1,0 +1,65 @@
+.mealDataInfoCard[b-szgdy27zal] {
+    padding: 10px;
+    background-color: var(--color-bkg-dark-meal);
+    border-radius: var(--border-medium);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mealDataInfoCard p[b-szgdy27zal] {
+    margin: 0;
+}
+
+.intakeDetailBasicInfo[b-szgdy27zal] {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.intakeDetailBasicInfo.editMode .formInputBlock[b-szgdy27zal] {
+    width: calc((100% - 10px)/2);
+}
+
+.intakeMacrosWrapper[b-szgdy27zal] {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.intakeMacrosWrapper:not(.editMode)[b-szgdy27zal]  .formInput {
+    width: 100%;
+}
+
+.intakeMacrosWrapper.editMode .formInputBlock[b-szgdy27zal] {
+    width: calc((100% - 20px)/3);
+}
+
+.intakeDetailName[b-szgdy27zal] {
+    font-family: 'Rowdies', sans-serif;
+    font-weight: 300;
+    color: gray;
+}
+
+.mealDataInfoCard p:not(.intakeDetail) span[b-szgdy27zal] {
+    font-variation-settings: 'wght' 700;
+}
+
+.intakeDetailCtaBtns[b-szgdy27zal] {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+    .intakeDetailCtaBtns button[b-szgdy27zal] {
+        background-color: var(--color-bkg-slightlydarkgrey);
+    }
+
+.mealQty[b-szgdy27zal] {
+    text-align: center;
+}
+
+.infoCtaBtn[b-szgdy27zal] {
+    padding: 5px 15px;
+}

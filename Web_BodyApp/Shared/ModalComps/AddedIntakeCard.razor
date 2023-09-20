@@ -1,0 +1,68 @@
+﻿@using Web_BodyApp.Data.Models;
+@using Web_BodyApp.Data.Models.NutritionData;
+@using Web_BodyApp.Data;
+@using Web_BodyApp.Data.AssistClasses;
+@using Web_BodyApp.Data.ServiceClasses;
+@inject UserStateService UserState
+
+<div class="intakeItemPreview @(type == 0 ? "foodIntakeItem" : "mealIntakeItem")">
+    <div class="titleRow">
+        <p>@intakeName</p>
+        <button @onclick="() => HandleDelete(dayTimeDictKey, type, elementIndex)">
+            <span class="material-symbols-outlined">
+                delete_forever
+            </span>
+        </button>
+    </div>
+    <div class="intakeInfo">
+        <p>Cal.: <span>@intakeCalories</span>kcal.</p>
+        <p>Carb.: <span>@macros.Carbs</span>gr.</p>
+        <p>Prot.: <span>@macros.Prots</span>gr.</p>
+        <p>Grasa: <span>@macros.Fats</span>gr.</p>
+    </div>
+    @if (type == 1)
+    {
+        MealIntake innerMeal = (MealIntake)dataObject;
+
+        <p class="mealQty"><span>@innerMeal.MealServing.ServingQty</span>@(innerMeal.MealServing.ServingUnit > 1 ? "grs." : "%")</p>
+    }
+</div>
+
+
+@code {
+    [Parameter] public object dataObject { get; set; } = new();
+    [Parameter] public int dayTimeDictKey { get; set; }
+    [Parameter] public int type { get; set; }
+    [Parameter] public int elementIndex { get; set; }
+
+    [Parameter] public EventCallback<(int,int,int)> OnDelete { get; set; }
+    public async Task HandleDelete(int dayTimeDictKey, int type, int elementIndex)
+    {
+        await OnDelete.InvokeAsync((dayTimeDictKey, type, elementIndex));
+    }
+
+
+    string intakeName { get; set; } = "";
+    int intakeCalories { get; set; } = 0;
+    FoodMacros macros { get; set; } = new();
+
+
+    protected override void OnParametersSet()
+    {
+        if (type == 0)
+        {
+            FoodData innerFData = (FoodData)dataObject;
+
+            intakeName = innerFData.FoodName;
+            intakeCalories = innerFData.FoodCalories;
+            macros = innerFData.FoodMacros;
+        } else
+        {
+            MealIntake innerMData = (MealIntake)dataObject;
+            Meal mData = UserState.Meals.First(m => m.Id == innerMData.MealId);
+            
+            intakeName = mData.Name;
+            (intakeCalories, macros) = Calculus.CalculateMealIntakeMacros(innerMData, mData);
+        }
+    }
+}
