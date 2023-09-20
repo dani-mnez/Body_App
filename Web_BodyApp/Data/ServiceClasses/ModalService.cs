@@ -1,5 +1,4 @@
-﻿using API_ASP.NET_Core_Body_App.Models.HistoricData;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 public class ModalService

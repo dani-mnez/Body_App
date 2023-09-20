@@ -11,7 +11,7 @@ namespace Web_BodyApp.Data.ServiceClasses
     public class RequestService
     {
         private readonly HttpClient _http;
-        private readonly string _baseURL = "http://localhost:5047/api/";
+        private readonly string _baseURL = "http://bodyapp-api/api/";
         private readonly CompareLogic _compareLogic = new(new() { MaxDifferences = 100 });
 
         public RequestService(HttpClient httpClient) { _http = httpClient; }

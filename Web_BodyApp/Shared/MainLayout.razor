@@ -82,7 +82,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var dummyUserResponse = await Http.GetAsync("http://localhost:5047/api/User/6485e2688c31a9f639d0e732");
+        var dummyUserResponse = await Http.GetAsync("http://bodyapp-api/api/User/6485e2688c31a9f639d0e732");
         User? dummyUser = await dummyUserResponse.Content.ReadFromJsonAsync<User>();
         dummyMail = dummyUser!.Mail;
         dummyPwd = dummyUser!.Password;
@@ -91,8 +91,8 @@
     private async Task<User?> GetUserFromApi(bool postMethod, string? userId = null, Dictionary<string, string>? postData = null)
     {
         var userResponse = (postMethod) 
-            ? await Http.PostAsJsonAsync("http://localhost:5047/api/User/authenticate", postData!)
-            : await Http.GetAsync($"http://localhost:5047/api/User/{userId!}");
+            ? await Http.PostAsJsonAsync("http://bodyapp-api/api/User/authenticate", postData!)
+            : await Http.GetAsync($"http://bodyapp-api/api/User/{userId!}");
 
         if (!userResponse.IsSuccessStatusCode)
         {
@@ -258,7 +258,7 @@
                 List<FoodData>? allFoodData = null;
                 if (allFoodDataIds.Count > 0)
                 {
-                    var allFoodDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/FoodData/list", allFoodDataIds);
+                    var allFoodDataResponse = await Http.PostAsJsonAsync<List<string>>("http://bodyapp-api/api/FoodData/list", allFoodDataIds);
                     allFoodData = await allFoodDataResponse.Content.ReadFromJsonAsync<List<FoodData>>();
                 }
 
@@ -331,7 +331,7 @@
 
         try
         {
-            var allUserHistData = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/HistoricalData/list", hdList);
+            var allUserHistData = await Http.PostAsJsonAsync<List<string>>("http://bodyapp-api/api/HistoricalData/list", hdList);
 
             if (!allUserHistData.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos históricos: {allUserHistData.StatusCode}");
 
@@ -349,7 +349,7 @@
 
         try
         {
-            var allPhysicalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/PhysicalData/list", physDataIdList);
+            var allPhysicalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://bodyapp-api/api/PhysicalData/list", physDataIdList);
 
             if (!allPhysicalDataResponse.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos físicos: {allPhysicalDataResponse.StatusCode}");
 
@@ -367,7 +367,7 @@
 
         try
         {
-            var allNutritionalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/NutritionalData/list", nutDataIdList);
+            var allNutritionalDataResponse = await Http.PostAsJsonAsync<List<string>>("http://bodyapp-api/api/NutritionalData/list", nutDataIdList);
 
             if (!allNutritionalDataResponse.IsSuccessStatusCode) throw new Exception($"Fallo al obtener datos nutricionales: {allNutritionalDataResponse.StatusCode}");
 
@@ -384,7 +384,7 @@
         if (userMeals.Count == 0) return new ObservableCollection<Meal>();
 
         try {
-            var mealHttpResponse = await Http.PostAsJsonAsync<List<string>>("http://localhost:5047/api/Meal/list", userMeals);
+            var mealHttpResponse = await Http.PostAsJsonAsync<List<string>>("http://bodyapp-api/api/Meal/list", userMeals);
             List<Meal>? mealListReturned = await mealHttpResponse.Content.ReadFromJsonAsync<List<Meal>>();
 
             return new ObservableCollection<Meal>(mealListReturned!);

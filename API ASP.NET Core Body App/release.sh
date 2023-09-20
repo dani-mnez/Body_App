@@ -1,0 +1,1 @@
+ docker push private-registry.alexdrl.com/alexdrl/bodyapp-api:1.1

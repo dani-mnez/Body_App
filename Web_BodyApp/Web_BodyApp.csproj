@@ -4,15 +4,18 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>bodyapp-ui</AssemblyName>
+    <UserSecretsId>72974f4d-a422-4f46-b321-960906da8875</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.79.0" />
-    <PackageReference Include="Plotly.Blazor" Version="2.18.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\API ASP.NET Core Body App\API ASP.NET Core Body App.csproj" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+	  <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="7.0.10" />
+	  <PackageReference Include="Plotly.Blazor" Version="2.18.2" />
+	  <PackageReference Include="MongoDB.Driver" Version="2.21.0" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
