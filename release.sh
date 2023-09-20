@@ -1,0 +1,1 @@
+ docker push private-registry.alexdrl.com/alexdrl/bodyapp-ui:1.2.1

@@ -1,0 +1,1 @@
+docker build . -f ./Web_BodyApp/Dockerfile -t private-registry.alexdrl.com/alexdrl/bodyapp-ui:1.2.1
