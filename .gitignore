@@ -1,3 +1,5 @@
 /.vs
 /bodyFatPercentages.afphoto
 /bodyTypes.afphoto
+/API ASP.NET Core Body App/bin
+/Web_BodyApp/bin
